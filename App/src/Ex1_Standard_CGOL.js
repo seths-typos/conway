@@ -98,3 +98,40 @@ var Ex1_Standard_CGOL = () => {
     // Intital set the default runner to this
     EZ_EXAMPLE = new EZWG( config);
 };
+
+var EZ_EXAMPLE = null;
+var INTERVAL_ID = null;
+
+var IS_PAUSED = false;
+
+function loadExample( example ){
+    clearExample();
+    // Initial load
+    example();
+    
+
+    (async () => {
+        await EZ_EXAMPLE.init(); 
+        console.log('EZ_EXAMPLE has been initialized'); 
+        // startExampleLoop()
+    })();
+
+}
+
+function clearExample(){
+    //document.getElementById('extraTitle').innerHTML = '';
+    if( INTERVAL_ID ){
+        clearInterval( INTERVAL_ID )
+    }
+    if( EZ_EXAMPLE ){
+        EZ_EXAMPLE.killdeath()
+    }
+} 
+
+function startExampleLoop(){
+    INTERVAL_ID = setInterval( () => {
+        if( !EZ_EXAMPLE.suicide ){
+            EZ_EXAMPLE.run() 
+        } 
+    }, EZ_EXAMPLE.UPDATE_INTERVAL );     
+}

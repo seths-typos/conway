@@ -56,7 +56,7 @@ file_path = "App/Assets/Letters/"+new_file+".js"
 f = open(file_path, "w")
 
 i = 0
-f.write("{\n\t\"charLen\":" + str(longest)+",\n\t\"rows\": [\n")
+f.write("const "+new_file[0].upper()+" = {\n\t\"charLen\":" + str(longest)+",\n\t\"rows\": [\n")
 
 while i < len(processed_lines):
 	arr = '\t\t['

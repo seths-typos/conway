@@ -214,64 +214,17 @@
     </script>
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 	<title>Tester</title>
-
-    <!-- <script src="src/PseudRand.js"></script> -->
-    <script src="src/EZWG.js"></script>
-    <script src="src/Ex1_Standard_CGOL.js"></script>
 </head>
 
 
 <body>
-        
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>    
+    
     <div id="demoCanvasContainer"></div>
 
-	
-    <script>
-        var EZ_EXAMPLE = null
-        var INTERVAL_ID = null
+    <script type="text/javascript" src="src/main.js"> </script>       
 
-        function loadExample( example ){
-            console.log(typeof example)
-
-            clearExample();
-            // Initial load
-            example();
-            
-
-            (async () => {
-                await EZ_EXAMPLE.init(); 
-                console.log('EZ_EXAMPLE has been initialized'); 
-                startExampleLoop()
-            })();
-
-        }
-
-        function clearExample(){
-            //document.getElementById('extraTitle').innerHTML = '';
-            if( INTERVAL_ID ){
-                clearInterval( INTERVAL_ID )
-            }
-            if( EZ_EXAMPLE ){
-                EZ_EXAMPLE.killdeath()
-            }
-        } 
-
-        function startExampleLoop(){
-		    INTERVAL_ID = setInterval( () => {
-                if( !EZ_EXAMPLE.suicide ){
-                    EZ_EXAMPLE.run() 
-                } 
-            }, EZ_EXAMPLE.UPDATE_INTERVAL ); 
-        }
-
-
-        window.onload = ()=>{
-            clearExample();
-            loadExample(Ex1_Standard_CGOL);//ALL_EXAMPLES.length-1)
-        };
-
-
-    </script>
 </body>
 
 </html>
