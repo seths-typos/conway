@@ -118,11 +118,14 @@ function loadExample( example ){
 
 }
 
-function clearExample(){
-    //document.getElementById('extraTitle').innerHTML = '';
+function pauseExample(){
     if( INTERVAL_ID ){
         clearInterval( INTERVAL_ID )
     }
+} 
+
+function clearExample(){
+    pauseExample()
     if( EZ_EXAMPLE ){
         EZ_EXAMPLE.killdeath()
     }

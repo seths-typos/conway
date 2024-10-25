@@ -12,6 +12,7 @@ function include(file) {
 /* Include Letters js files */
 include('assets/letters/B_2.js');
 
+
 /* Include Files js files */
 include('src/EZWG.js');
 include('src/Ex1_Standard_CGOL.js');
