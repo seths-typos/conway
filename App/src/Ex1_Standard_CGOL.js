@@ -102,8 +102,6 @@ var Ex1_Standard_CGOL = () => {
 var EZ_EXAMPLE = null;
 var INTERVAL_ID = null;
 
-var IS_PAUSED = false;
-
 function loadExample( example ){
     clearExample();
     // Initial load
