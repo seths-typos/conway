@@ -3,7 +3,8 @@ var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
 var del = require('del');
 
-gulp.task('default', function(done) {
+
+gulp.task('watch', function(done) {
   return gulp.watch('src/**.js', gulp.series('clean', 'jsBundle'))
 });
  
@@ -17,6 +18,8 @@ gulp.task('jsBundle', async function(done) {
             'src/PseudRand.js',
             'src/EZWG.js',
             'src/typer.js',
+            'src/game.js',
+            'src/config.js',
             'src/kickoff.js'
             ])
   .pipe(uglify())
