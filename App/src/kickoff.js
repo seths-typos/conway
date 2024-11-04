@@ -5,7 +5,6 @@ var INTERVAL_ID = null;
 window.onload = ()=>{
     GAME = new Game(CONFIG);
     console.log("GAME INITIATED");
-    GAME.board.init();
 
     let startButton = document.getElementById("start")
     let stopButton = document.getElementById("stop")
@@ -24,6 +23,6 @@ window.onload = ()=>{
       var keyValue = event.key;
       var codeValue = event.code;
 
-      // BOARD.type(event.key);
+      GAME.type(LETTERS[event.key]);
     }, false);
 };
