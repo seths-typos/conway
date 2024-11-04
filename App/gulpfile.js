@@ -15,8 +15,7 @@ gulp.task('clean', async function(done) {
 
 gulp.task('jsBundle', async function(done) {
   return gulp.src(['assets/letters/*.js',
-            'src/PseudRand.js',
-            'src/EZWG.js',
+            'src/board.js',
             'src/typer.js',
             'src/game.js',
             'src/config.js',
