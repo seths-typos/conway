@@ -21,104 +21,29 @@ class Game {
 
 
     // Clear state
-    this.clear = {
-      schedule : false
-    };
-
-
-    // Average execution times
-    this.times = {
-      algorithm : 0,
-      gui : 0
-    };
+    this.clear = false;
 
     // Initial state
-    this.initialState = '[{"1":[1]},{"39":[110]},{"40":[112]},{"41":[109,110,113,114,115]}]',
+    this.initialState = '[{"1":[1]},{"29":[40, 42]},{"30":[42, 49, 50, 54]},{"31":[49,50,53,54,55]}]';
 
     // Trail state
-    this.trail = {
-      current: false,
-      schedule : false
-    };
-
+    this.trail = false;
 
     // Grid style
-    this.grid = {
-      current : 0,
-
-      schemes : [
-      {
-        color : '#FFFFFF'
-      },
-
-      {
-        color : '#FFFFFF'
-      },
-
-      {
-        color : '#666666'
-      },
-
-      {
-        color : '' // Special case: 0px grid
-      }
-      ]
-    };
-
+    this.gridColor = '#FFFFFF';
 
     // Zoom level
     this.zoom = {
-      current : 0,
-      schedule : false,
-
-      schemes : [
-      // { columns : 100, rows : 48, cellSize : 8 },
-      {
-        columns : 90,
-        rows : 43,
-        cellSize : 10
-      },
-
-      {
-        columns : 300,
-        rows : 144,
-        cellSize : 2
-      },
-
-      {
-        columns : 450,
-        rows : 216,
-        cellSize : 1
-      }
-      ]
+      columns : 100,
+      rows : 800,
+      cellSize : 4
     };
-
 
     // Cell colors
     this.colors = {
-      current : 0,
-      schedule : false,
-
-      schemes : [
-      {
-        dead : '#FFFFFF',
-        trail : ['#B5ECA2'],
-        alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
-      },
-
-      {
-        dead : '#FFFFFF',
-        trail : ['#EE82EE', '#FF0000', '#FF7F00', '#FFFF00', '#008000 ', '#0000FF', '#4B0082'],
-        alive : ['#FF0000', '#FF7F00', '#FFFF00', '#008000 ', '#0000FF', '#4B0082', '#EE82EE']
-      },
-
-      {
-        dead : '#FFFFFF',
-        trail : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF'],
-        alive : ['#000000']
-      }
-
-      ]
+      dead : '#FFFFFF',
+      trail : ['#B5ECA2'],
+      alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
     };
 
     // ListLife Variables
@@ -136,8 +61,8 @@ class Game {
     this.cellSize = null;
     this.cellSpace = null;
 
-    this.rows = this.zoom.schemes[this.zoom.current].rows;
-    this.columns = this.zoom.schemes[this.zoom.current].columns;
+    this.rows = this.zoom.rows;
+    this.columns = this.zoom.columns;
   }
 
   init () {
@@ -180,16 +105,8 @@ class Game {
    * Prepare DOM elements and Canvas for a new run
    */
   prepare () {
-    // this.generation = this.times.algorithm = this.times.gui = 0;
-    // this.mouseDown = this.clear.schedule = false;
-
     this.clearWorld(); // Reset GUI
     this.drawWorld(); // Draw State
-
-    // if (this.autoplay) { // Next Flow
-    //   this.autoplay = false;
-    //   this.handlers.buttons.run();
-    // }
   }
 
   /**
@@ -199,17 +116,10 @@ class Game {
     var i, x, y, r, liveCellNumber, algorithmTime, guiTime;
 
     // Algorithm run
-  
-    algorithmTime = (new Date());
-
     liveCellNumber = this.nextGeneration();
-
-    algorithmTime = (new Date()) - algorithmTime;
-
 
     // Canvas run
     this.context.clearRect(0,0,this.width, this.height)
-    guiTime = (new Date());
 
     for (i = 0; i < this.redrawList.length; i++) {
       x = this.redrawList[i][0];
@@ -224,28 +134,6 @@ class Game {
       }
     }
 
-    guiTime = (new Date()) - guiTime;
-
-    // Pos-run updates
-
-    // Clear Trail
-    if (this.trail.schedule) {
-      this.trail.schedule = false;
-      this.drawWorld();
-    }
-
-    // Change Grid
-    if (this.grid.schedule) {
-      this.grid.schedule = false;
-      this.drawWorld();
-    }
-
-    // Change Colors
-    if (this.colors.schedule) {
-      this.colors.schedule = false;
-      this.drawWorld();
-    }
-
     // Flow Control
     if (this.running) {
       let that = this
@@ -253,7 +141,7 @@ class Game {
         that.nextStep();
       }, this.waitTime);
     } else {
-      if (this.clear.schedule) {
+      if (this.clear) {
         this.cleanUp();
       }
     }
@@ -267,16 +155,11 @@ class Game {
    * init
    */
   initCanvas () {
-
     this.canvas = document.getElementById('canvas');
     this.context = this.canvas.getContext('2d');
 
-    this.cellSize = this.zoom.schemes[this.zoom.current].cellSize;
+    this.cellSize = this.zoom.cellSize;
     this.cellSpace = 1;
-
-    // GOL.helpers.registerEvent(this.canvas, 'mousedown', GOL.handlers.canvasMouseDown, false);
-    // GOL.helpers.registerEvent(document, 'mouseup', GOL.handlers.canvasMouseUp, false);
-    // GOL.helpers.registerEvent(this.canvas, 'mousemove', GOL.handlers.canvasMouseMove, false);
 
     this.clearWorld();
   }
@@ -306,7 +189,7 @@ class Game {
     var i, j;
 
     // Special no grid case
-    if (this.grid.schemes[this.grid.current].color === '') {
+    if (this.gridColor === '') {
       this.setNoGridOn();
       this.width = this.height = 0;
     } else {
@@ -314,15 +197,16 @@ class Game {
       this.width = this.height = 1;
     }
 
+
     // Dynamic canvas size
     this.width = this.width + (this.cellSpace * this.columns) + (this.cellSize * this.columns);
-    this.canvas.setAttribute('width', this.width);
+    this.canvas.setAttribute('width', this.width+500);
 
     this.height = this.height + (this.cellSpace * this.rows) + (this.cellSize * this.rows);
-    this.canvas.getAttribute('height', this.height);
+    this.canvas.setAttribute('height', this.height+500);
 
     // Fill background
-    this.context.fillStyle = this.grid.schemes[this.grid.current].color;
+    this.context.fillStyle = this.gridColor;
     this.context.fillRect(0, 0, this.width, this.height);
 
     for (i = 0 ; i < this.columns; i++) {
@@ -341,7 +225,7 @@ class Game {
    * setNoGridOn
    */
   setNoGridOn () {
-    this.cellSize = this.zoom.schemes[this.zoom.current].cellSize + 1;
+    this.cellSize = this.zoom.cellSize + 1;
     this.cellSpace = 0;
   }
 
@@ -350,7 +234,7 @@ class Game {
    * setNoGridOff
    */
   setNoGridOff () {
-    this.cellSize = this.zoom.schemes[this.zoom.current].cellSize;
+    this.cellSize = this.zoom.cellSize;
     this.cellSpace = 1;
   }
 
@@ -358,32 +242,19 @@ class Game {
   /**
    * drawCell
    */
-  drawCell (i, j, alive) {
-            
-    if (alive) {
+  drawCell (i, j, alive) {        
+    if (alive && this.age[i][j] > -1) {
+        this.context.fillStyle = this.colors.alive[this.age[i][j] % this.colors.alive.length];
+      } else {
+        this.context.fillStyle = this.colors.dead;
+      }
 
-      if (this.age[i][j] > -1)
-        this.context.fillStyle = this.colors.schemes[this.colors.current].alive[this.age[i][j] % this.colors.schemes[this.colors.current].alive.length];
-
-    } else {
-      // if (this.trail.current && this.age[i][j] < 0) {
-      //   this.context.fillStyle = this.colors.schemes[this.colors.current].trail[(this.age[i][j] * -1) % this.colors.schemes[this.colors.current].trail.length];
-      // } else {
-        this.context.fillStyle = this.colors.schemes[this.colors.current].dead;
-      // }
-    }
-
-    let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
-    let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
-    // this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
-    this.context.beginPath();
-    this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
-    this.context.fill();
-
-    console.log("rect", this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j))
-    console.log("arc", iPos, jPos)
-
-            
+      let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
+      let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
+      // this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
+      this.context.beginPath();
+      this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
+      this.context.fill();
   }
 
 

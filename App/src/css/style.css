@@ -83,10 +83,7 @@ canvas {
 }
 
 .button {
-  border-bottom: 2px solid #333333;
-  border-right: 2px solid #333333;
-  border-top: 2px solid #AAAAAA;
-  border-left: 2px solid #AAAAAA;
+  border:none;
   background: #FFFFFF;
   font-size: 24px;
   line-height: 26px;
@@ -101,28 +98,29 @@ canvas {
 }
 
 .button:hover {
-  border-bottom: 2px solid #AAAAAA;
+  /*border-bottom: 2px solid #AAAAAA;
   border-right: 2px solid #AAAAAA;
   border-top: 2px solid #333333;
-  border-left: 2px solid #333333;
+  border-left: 2px solid #333333;*/
   cursor: pointer;
 }
 
 .box input {
-  border-bottom: 2px solid #333333;
+  border: none;
+  /*border-bottom: 2px solid #333333;
   border-right: 2px solid #333333;
   border-top: 2px solid #AAAAAA;
-  border-left: 2px solid #AAAAAA;
+  border-left: 2px solid #AAAAAA;*/
   background: #FFFFFF;
   font-size: 24px;
   line-height: 26px;
 }
 
 .box input:hover {
-  border-bottom: 2px solid #AAAAAA;
+  /*border-bottom: 2px solid #AAAAAA;
   border-right: 2px solid #AAAAAA;
   border-top: 2px solid #333333;
-  border-left: 2px solid #333333;
+  border-left: 2px solid #333333;*/
   cursor: pointer;
 }
 
