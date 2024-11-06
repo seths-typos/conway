@@ -3,26 +3,44 @@ var LETTERS = {"B": B};
 var INTERVAL_ID = null;
 
 window.onload = ()=>{
-    GAME = new Game(CONFIG);
-    console.log("GAME INITIATED");
+    GAME = new Game({});
+    GAME.init();
 
-    let startButton = document.getElementById("start")
-    let stopButton = document.getElementById("stop")
+    let startButton = document.getElementById("buttonRun")
+    let stepButton = document.getElementById("buttonStep")
+    let clearButton = document.getElementById("buttonClear")
 
     startButton.addEventListener('click', (event) => {
-        GAME.board.suicide = false;
-        GAME.start();
+        GAME.running = !GAME.running;
+
+        if (GAME.running) {
+          console.log(GAME)
+          GAME.nextStep();
+          document.getElementById('buttonRun').value = 'Stop';
+        } else {
+          document.getElementById('buttonRun').value = 'Run';
+        }
     });
 
-    stopButton.addEventListener('click', (event) => {
-        GAME.board.suicide = true;
-        GAME.pause();
-    });    
+    /**
+     * Button Handler - Next Step - One Step only
+     */
+    stepButton.addEventListener('click', (event) => {
+        if (!GAME.running) {
+          GAME.nextStep();
+        }
+    });
 
-    document.addEventListener('keydown', (event) => {
-      var keyValue = event.key;
-      var codeValue = event.code;
-
-      GAME.type(LETTERS[event.key]);
-    }, false);
+    /**
+    * Button Handler - Clear World
+    */
+    clearButton.addEventListener('click', (event) => {
+        if (GAME.running) {
+          GAME.clear.schedule = true;
+          GAME.running = false;
+          document.getElementById('buttonRun').value = 'Run';
+        } else {
+          GAME.cleanUp();
+        }
+    });
 };
