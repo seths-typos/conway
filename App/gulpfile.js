@@ -5,7 +5,7 @@ var del = require('del');
 
 
 gulp.task('watch', function(done) {
-  return gulp.watch('src/**.js', gulp.series('clean', 'jsBundle'))
+  return gulp.watch('src/js/*.js', gulp.series('clean', 'jsBundle'))
 });
  
 // Task to delete target build folder

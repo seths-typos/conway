@@ -33,11 +33,11 @@ class Game {
     };
 
     // Initial state
-    this.initialState = '[{"39":[110]},{"40":[112]},{"41":[109,110,113,114,115]}]',
+    this.initialState = '[{"1":[1]},{"39":[110]},{"40":[112]},{"41":[109,110,113,114,115]}]',
 
     // Trail state
     this.trail = {
-      current: true,
+      current: false,
       schedule : false
     };
 
@@ -48,7 +48,7 @@ class Game {
 
       schemes : [
       {
-        color : '#F3F3F3'
+        color : '#FFFFFF'
       },
 
       {
@@ -74,9 +74,9 @@ class Game {
       schemes : [
       // { columns : 100, rows : 48, cellSize : 8 },
       {
-        columns : 180,
-        rows : 86,
-        cellSize : 4
+        columns : 90,
+        rows : 43,
+        cellSize : 10
       },
 
       {
@@ -156,7 +156,7 @@ class Game {
   loadState () {
     var state, i, j, y;
 
-    state = jsonParse(decodeURI(this.initialState));
+    state = JSON.parse(decodeURI(this.initialState));
         
     for (i = 0; i < state.length; i++) {
       for (y in state[i]) {
@@ -208,7 +208,7 @@ class Game {
 
 
     // Canvas run
-
+    this.context.clearRect(0,0,this.width, this.height)
     guiTime = (new Date());
 
     for (i = 0; i < this.redrawList.length; i++) {
@@ -366,14 +366,23 @@ class Game {
         this.context.fillStyle = this.colors.schemes[this.colors.current].alive[this.age[i][j] % this.colors.schemes[this.colors.current].alive.length];
 
     } else {
-      if (this.trail.current && this.age[i][j] < 0) {
-        this.context.fillStyle = this.colors.schemes[this.colors.current].trail[(this.age[i][j] * -1) % this.colors.schemes[this.colors.current].trail.length];
-      } else {
+      // if (this.trail.current && this.age[i][j] < 0) {
+      //   this.context.fillStyle = this.colors.schemes[this.colors.current].trail[(this.age[i][j] * -1) % this.colors.schemes[this.colors.current].trail.length];
+      // } else {
         this.context.fillStyle = this.colors.schemes[this.colors.current].dead;
-      }
+      // }
     }
 
-    this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
+    let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
+    let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
+    // this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
+    this.context.beginPath();
+    this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
+    this.context.fill();
+
+    console.log("rect", this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j))
+    console.log("arc", iPos, jPos)
+
             
   }
 
