@@ -12,6 +12,8 @@
 class Game {
 
   constructor () {
+    let baseColor = '#000000';
+
     // Variables
     this.waitTime = 0;
     this.generation = 0;
@@ -30,18 +32,18 @@ class Game {
     this.trail = false;
 
     // Grid style
-    this.gridColor = '#FFFFFF';
+    this.gridColor = baseColor;
 
     // Zoom level
     this.zoom = {
-      columns : 100,
-      rows : 800,
+      columns : null,
+      rows : null,
       cellSize : 4
     };
 
     // Cell colors
     this.colors = {
-      dead : '#FFFFFF',
+      dead : baseColor,
       trail : ['#B5ECA2'],
       alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
     };
@@ -67,8 +69,10 @@ class Game {
 
   init () {
     try {
-      this.loadState();       // Load state from URL
       this.initCanvas();     // Init canvas GUI
+      this.setGridSize();
+      console.log(this.zoom);
+      this.loadState();       // Load state from URL
       this.prepare();
     } catch (e) {
       console.log("Error: "+e);
@@ -90,6 +94,15 @@ class Game {
         }
       }
     }
+  }
+
+  setGridSize () {
+    console.log(Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace)),window.innerWidth,(this.zoom.cellSize + this.cellSpace));
+    this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
+
+    let offset = document.getElementById("controls").getBoundingClientRect();
+    console.log(offset.height + offset.bottom);
+    this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
   }
 
   /**
@@ -188,22 +201,12 @@ class Game {
   drawWorld () {
     var i, j;
 
-    // Special no grid case
-    if (this.gridColor === '') {
-      this.setNoGridOn();
-      this.width = this.height = 0;
-    } else {
-      this.setNoGridOff();
-      this.width = this.height = 1;
-    }
-
-
     // Dynamic canvas size
     this.width = this.width + (this.cellSpace * this.columns) + (this.cellSize * this.columns);
-    this.canvas.setAttribute('width', this.width+500);
+    this.canvas.setAttribute('width', this.width);
 
     this.height = this.height + (this.cellSpace * this.rows) + (this.cellSize * this.rows);
-    this.canvas.setAttribute('height', this.height+500);
+    this.canvas.setAttribute('height', this.height);
 
     // Fill background
     this.context.fillStyle = this.gridColor;
@@ -242,19 +245,22 @@ class Game {
   /**
    * drawCell
    */
-  drawCell (i, j, alive) {        
-    if (alive && this.age[i][j] > -1) {
-        this.context.fillStyle = this.colors.alive[this.age[i][j] % this.colors.alive.length];
-      } else {
-        this.context.fillStyle = this.colors.dead;
-      }
+  drawCell (i, j, alive) {   
 
-      let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
-      let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
-      // this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
-      this.context.beginPath();
-      this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
-      this.context.fill();
+    if (alive) {
+      this.context.fillStyle = this.colors.alive[this.age[i][j] % this.colors.alive.length];
+
+    } else {
+      this.context.fillStyle = this.colors.dead;
+    }
+
+
+    let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
+    let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
+    // this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
+    this.context.beginPath();
+    this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
+    this.context.fill();
   }
 
 
