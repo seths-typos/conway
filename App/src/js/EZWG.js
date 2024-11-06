@@ -1250,7 +1250,6 @@ class EZWG {
     // Do a full pass
     run(){
         if( !this.READ_BUFFER_BUSY && this.device){
-
             let encoder = this.device.createCommandEncoder();
             // Start a compute pass
             let computePass = encoder.beginComputePass();
@@ -1321,6 +1320,7 @@ class EZWG {
  
             //console.log(this.READ_BACK_FREQ, '---', this.step)
             if( this.READ_BACK_FREQ > -1 && (this.step%this.READ_BACK_FREQ===0) ){ 
+
                 doReadBack = true; 
 
                 // Copy output buffer to staging buffer
@@ -1404,12 +1404,11 @@ class EZWG {
 
             }
             else{
+
                 this.device.queue.submit( [ encoder.finish() ] );
             }
 
             
-            //console.log("this.step==>", this.step);
-            //console.log(resultBuffer);
             //https://developer.mozilla.org/en-US/docs/Web/API/GPUQuerySet
             //https://github.com/gpuweb/gpuweb/issues/4383
             //what da spruce man

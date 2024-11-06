@@ -3,10 +3,10 @@ class Game {
 		this.width = config.CHUNK_SIZE * config.CHUNKS_ACROSS;
 		this.INTERVAL_ID = null;
 
-		if (config) {
-			let gridSize = Math.pow(this.width, 2);
-    		config.STARTING_BUFFER = new Uint32Array( gridSize * config.CELL_VALS );	
-		}
+		// if (config) {
+		// 	let gridSize = Math.pow(this.width, 2);
+    	// 	config.STARTING_BUFFER = new Uint32Array( gridSize * config.CELL_VALS );	
+		// }
 		
 		this.board = new EZWG(config);
 		this.board.init().then(()=>{this.board.run()});
@@ -39,6 +39,8 @@ class Game {
 		let center = Math.round(this.width / 2);
 		let topRow = center - 4;
 		let bottomRow = center + 4;
+
+		
 		
 
 		// move to the left half of letter width

@@ -1,115 +1,25 @@
 <!DOCTYPE html>
-<head>
-	<style>
-		@keyframes pulse {
-			0% {
-				box-shadow: 0px 0px 0px 1px rgba(165, 165, 165, 0.04),
-							-9px 9px 9px -0.5px rgba(0, 0, 0, 0.04),
-							-18px 18px 18px -1.5px rgba(0, 0, 0, 0.08),
-							-37px 37px 37px -3px rgba(0, 0, 0, 0.16),
-							-75px 75px 75px -6px rgba(0, 0, 0, 0.24),
-							-150px 150px 150px -12px rgba(0, 0, 0, 0.48);
-			}
-			50% {
-				box-shadow: 0px 0px 0px 1px rgba(165, 165, 165, 0.05),
-							-9px 9px 9px -0.5px rgba(0, 0, 0, 0.05),
-							-18px 18px 18px -1.5px rgba(0, 0, 0, 0.10),
-							-37px 37px 37px -3px rgba(0, 0, 0, 0.18),
-							-75px 75px 75px -6px rgba(0, 0, 0, 0.26),
-							-150px 150px 150px -12px rgba(0, 0, 0, 0.50);
-			}
-			100% {
-				box-shadow: 0px 0px 0px 1px rgba(165, 165, 165, 0.04),
-							-9px 9px 9px -0.5px rgba(0, 0, 0, 0.04),
-							-18px 18px 18px -1.5px rgba(0, 0, 0, 0.08),
-							-37px 37px 37px -3px rgba(0, 0, 0, 0.16),
-							-75px 75px 75px -6px rgba(0, 0, 0, 0.24),
-							-150px 150px 150px -12px rgba(0, 0, 0, 0.48);
-			}
-		}
-
-		html{ 
-/*			background: rgb(48, 49, 56);*/
-			/*background: linear-gradient(215deg, rgba(68,73,106,1) 0%, rgba(53,140,121,1) 34%, rgba(49,68,71,1) 100%); */
-            background: black;
-            padding: 15px;
-		}
-		body {
-            font-family: 'Consolas', monospace;
-			height: 100%;
-			margin: 0;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-
-
-
-        
-        .hidden{
-            transition: all 1s ease-in-out !important;
-            opacity:0;
-            max-height:0;
-            max-width:0;
-            display:none;
-            padding:0 !important;
-            margin:0 !important;
-            border:none !important;
-            overflow:hidden;
-        }
-        .disable-selectt {
-            user-select: none; /* supported by Chrome and Opera */
-            -webkit-user-select: none; /* Safari */
-            -khtml-user-select: none; /* Konqueror HTML */
-            -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-            -webkit-user-drag: none;
-        }
-        .pixel-perfect {
-            image-rendering: pixelated;
-            image-rendering: crisp-edges; /* for some browsers */
-            width: 8px;  /* or the actual width of your image */
-            height: 8px; /* or the actual height of your image */
-        }
-
-
-
-        
-        /*Rounded elment*/ 
-		.rounded-element {
-			/*width: calc(60vw); 
-			border-radius: 15px;  
-			background: linear-gradient(195deg, #715555, #536176);  
-			padding: 20px;  
-			color: #ffffff; 
-			animation: pulse 3s infinite; */
-
-            position: absolute;
-            top: 15px;
-			color: #ffffff; 
-            max-width: 600px; 
-            border-radius: 15px;
-            padding: 15px;
-			background: linear-gradient(195deg, #534242, #536176);  
-            border-radius: 15px; 
-
-		}
-
+<html>
+  <head>
+    <script src="src/js/original/json-sans-eval.js"></script>
+    <script src="src/js/original/css-browser-selector.js"></script>
+    <script src="src/js/original/game-of-life-v3.1.1.js"></script>
     
-	</style>
+    <link rel="stylesheet" type="text/css" href="src/css/style.css" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
-	<title>Tester</title>
-</head>
-
-
-<body>
-    <button id="start">Start</button>
-    <button id="stop">Stop</button>    
-    
-    <div id="demoCanvasContainer"></div>
-
-    <script type="text/javascript" src="./dist/js/main.js"> </script>       
-
-</body>
-
+    <title>Conway's Game of Life - Javascript/Canvas Implementation</title>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div class="box controls">
+        <form action="">
+          <input type="button" value="Run" id="buttonRun" />
+          <input type="button" value="Step" id="buttonStep" />
+          <input type="button" value="Clear" id="buttonClear" />
+        </form>
+      </div>
+      <canvas id="canvas" width="901" height="433"></canvas>
+    </div>
+  </body>
 </html>

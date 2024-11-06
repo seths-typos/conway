@@ -15,11 +15,12 @@ gulp.task('clean', async function(done) {
 
 gulp.task('jsBundle', async function(done) {
   return gulp.src(['assets/letters/*.js',
-            'src/board.js',
-            'src/typer.js',
-            'src/game.js',
-            'src/config.js',
-            'src/kickoff.js'
+            // 'src/js/board.js',
+            // 'src/js/typer.js',
+            // 'src/js/game.js',
+            // 'src/js/config.js',
+            // 'src/js/kickoff.js'
+            'src/original/*.js'
             ])
   .pipe(uglify())
   .pipe(concat('main.js'))
