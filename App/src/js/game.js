@@ -15,8 +15,7 @@ class Game {
     let baseColor = '#000000';
 
     // Variables
-    this.waitTime = 0;
-    this.generation = 0;
+    this.waitTime = 75;
 
     this.running = false;
     this.autoplay = false;
@@ -26,7 +25,8 @@ class Game {
     this.clear = false;
 
     // Initial state
-    this.initialState = '[{"1":[1]},{"29":[40, 42]},{"30":[42, 49, 50, 54]},{"31":[49,50,53,54,55]}]';
+    this.initialState = '[{"0":[0,1,3,4]},{"1":[0,1,2,3,4,5,6]},{"2":[1,2,4]},{"3":[0,1,2,3,4]},{"4":[0,1,2,5,6]},{"5":[1,2,5,6]},{"6":[0,1,2,3,4,5,6]},{"7":[0,1,3,4,5]}]';
+    // this.initialState = '';
 
     // Trail state
     this.trail = false;
@@ -38,7 +38,7 @@ class Game {
     this.zoom = {
       columns : null,
       rows : null,
-      cellSize : 4
+      cellSize : 10
     };
 
     // Cell colors
@@ -47,6 +47,12 @@ class Game {
       trail : ['#B5ECA2'],
       alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
     };
+
+    // Text
+    this.line = 0;
+    this.insertionPoint = 0;
+    this.marginTop = 20;
+    this.marginLeft = null;
 
     // ListLife Variables
     this.actualState = [];
@@ -71,38 +77,22 @@ class Game {
     try {
       this.initCanvas();     // Init canvas GUI
       this.setGridSize();
-      console.log(this.zoom);
-      this.loadState();       // Load state from URL
+      // this.addString(this.initialState);
       this.prepare();
     } catch (e) {
       console.log("Error: "+e);
     }
   }
 
-  /**
-       * Load world state from URL parameter
-       */
-  loadState () {
-    var state, i, j, y;
-
-    state = JSON.parse(decodeURI(this.initialState));
-        
-    for (i = 0; i < state.length; i++) {
-      for (y in state[i]) {
-        for (j = 0 ; j < state[i][y].length ; j++) {
-          this.addCell(state[i][y][j], parseInt(y, 10), this.actualState);
-        }
-      }
-    }
-  }
 
   setGridSize () {
-    console.log(Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace)),window.innerWidth,(this.zoom.cellSize + this.cellSpace));
     this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
 
     let offset = document.getElementById("controls").getBoundingClientRect();
-    console.log(offset.height + offset.bottom);
+
     this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
+
+    this.marginLeft = Math.round(this.rows/7);
   }
 
   /**
@@ -199,8 +189,6 @@ class Game {
    * drawWorld
    */
   drawWorld () {
-    var i, j;
-
     // Dynamic canvas size
     this.width = this.width + (this.cellSpace * this.columns) + (this.cellSize * this.columns);
     this.canvas.setAttribute('width', this.width);
@@ -211,6 +199,12 @@ class Game {
     // Fill background
     this.context.fillStyle = this.gridColor;
     this.context.fillRect(0, 0, this.width, this.height);
+
+    this.drawCells();    
+  }
+
+  drawCells() {
+    var i, j;
 
     for (i = 0 ; i < this.columns; i++) {
       for (j = 0 ; j < this.rows; j++) {
@@ -376,7 +370,6 @@ class Game {
     return alive;
   }
 
-
   
 
   /**
@@ -522,6 +515,48 @@ class Game {
               state[i].splice(j, 1);
             }
           }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+
+  typeLetter (ltr) {
+    try {
+      this.addString(ltr)
+
+      this.insertionPoint = this.insertionPoint + ltr.width;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**
+   * 
+   */
+
+  addString (str) {
+    var state, i, j, k, x, y, newLine;
+
+    state = JSON.parse(decodeURI(str.code));
+
+    if (this.insertionPoint+this.marginLeft+str.width > this.columns - this.marginLeft) {
+      newLine = true;
+      this.line = this.line + 1;
+      this.insertionPoint = 0;
+    } 
+
+    for (i = 0; i < state.length; i++) {
+      for (k in state[i]) {
+        for (j = 0 ; j < state[i][k].length ; j++) {
+          x = state[i][k][j]+this.marginLeft + this.insertionPoint;
+
+          y = parseInt(k, 10) + this.marginTop + this.line*14;
+
+          this.addCell(x, y, this.actualState);
         }
       }
     }

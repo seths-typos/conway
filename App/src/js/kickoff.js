@@ -43,4 +43,11 @@ window.onload = ()=>{
           GAME.cleanUp();
         }
     });
+
+    document.onkeypress = function (e) {
+        e = e || window.event;
+        
+        GAME.typeLetter(LETTERS[e.key.toUpperCase()]);
+        GAME.drawCells();
+    };    
 };
