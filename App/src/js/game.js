@@ -523,12 +523,14 @@ class Game {
   /**
    * 
    */
+  addSpace() {
+    this.insertionPoint = this.insertionPoint + 7
+  }
 
   typeLetter (ltr) {
     try {
       this.addString(ltr)
-
-      this.insertionPoint = this.insertionPoint + ltr.width;
+      this.insertionPoint = this.insertionPoint + ltr.width+1;
     } catch (e) {
       console.log(e);
     }
@@ -554,7 +556,7 @@ class Game {
         for (j = 0 ; j < state[i][k].length ; j++) {
           x = state[i][k][j]+this.marginLeft + this.insertionPoint;
 
-          y = parseInt(k, 10) + this.marginTop + this.line*14;
+          y = parseInt(k, 10) + this.marginTop + this.line*10;
 
           this.addCell(x, y, this.actualState);
         }

@@ -1,5 +1,5 @@
 var GAME = null;
-var LETTERS = {"B": B};
+var LETTERS = {"A":A, "B": B,"C": C, "D": D,"E": E,"F": F};
 var INTERVAL_ID = null;
 
 window.onload = ()=>{
@@ -46,8 +46,13 @@ window.onload = ()=>{
 
     document.onkeypress = function (e) {
         e = e || window.event;
+
+        if (e.keyCode == 32) {
+            GAME.addSpace();
+        } else {
+            GAME.typeLetter(LETTERS[e.key.toUpperCase()]);    
+        }
         
-        GAME.typeLetter(LETTERS[e.key.toUpperCase()]);
         GAME.drawCells();
     };    
 };
