@@ -15,10 +15,18 @@ class Game {
     let baseColor = '#000000';
 
     // Variables
-    this.waitTime = 75;
+    this.waitTime = 80;
+    this.waitCap = 5;
+    let waitSteps = 8
+    this.waitStep = Math.round((this.waitTime - this.waitCap)/waitSteps);
+    this.count = 0
+    this.alphaStep = 1 / ((this.waitTime - this.waitCap) / this.waitStep);
+    this.firstRun = true;
 
     this.running = false;
     this.autoplay = false;
+
+    this.curAlpha = 1;
 
 
     // Clear state
@@ -116,14 +124,63 @@ class Game {
    * Run Next Step
    */
   nextStep () {
-    var i, x, y, r, liveCellNumber, algorithmTime, guiTime;
-
-    // Algorithm run
-    liveCellNumber = this.nextGeneration();
-
-    // Canvas run
     this.context.clearRect(0,0,this.width, this.height)
 
+    
+    if (this.firstRun) {
+      this.context.globalAlpha = (this.waitTime - this.count) / this.waitTime;
+    } else if (this.count < this.waitTime/2) {
+      this.context.globalAlpha += (1 - this.curAlpha) / (this.waitTime/2);
+    } else if (this.waitTime == this.waitCap) {
+      this.context.globalAlpha = 1;
+    } else {
+      this.context.globalAlpha -= (1 - this.curAlpha - this.alphaStep)/(this.waitTime/2);
+    }
+    
+    // Algorithm run
+    console.log("COUNT", this.count, "WAIT TIME", this.waitTime, "WAIT STEP", this.waitStep, "WAIT CAP", this.waitCap)
+    if (this.count == this.waitTime) {
+      var liveCellNumber = this.nextGeneration();
+      this.drawRedraws();
+
+      this.count = 0;
+
+      if (this.waitTime - this.waitStep > this.waitCap) {
+        this.waitTime -= this.waitStep;
+        this.curAlpha = this.context.globalAlpha;
+      }  else {
+        this.waitTime = this.waitCap;
+      }
+
+      if (this.firstRun) {
+        this.firstRun = false;
+      }
+    } else {
+      this.drawCells();
+      this.count += 1;
+    }
+
+
+
+    // Canvas run
+
+    // Flow Control
+    if (this.running) { 
+      // let that = this
+      // setTimeout(function() {
+      //   that.nextStep();
+      // }, this.waitTime);
+      requestAnimationFrame(this.nextStep.bind(this));
+    } else {
+      if (this.clear) {
+        this.cleanUp();
+      }
+    }
+  }
+
+  drawRedraws() {
+    var i, x, y;
+    
     for (i = 0; i < this.redrawList.length; i++) {
       x = this.redrawList[i][0];
       y = this.redrawList[i][1];
@@ -134,18 +191,6 @@ class Game {
         this.keepCellAlive(x, y);
       } else {
         this.changeCelltoDead(x, y);
-      }
-    }
-
-    // Flow Control
-    if (this.running) {
-      let that = this
-      setTimeout(function() {
-        that.nextStep();
-      }, this.waitTime);
-    } else {
-      if (this.clear) {
-        this.cleanUp();
       }
     }
   }
@@ -256,21 +301,6 @@ class Game {
     this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
     this.context.fill();
   }
-
-
-  /**
-   * switchCell
-   */
-  switchCell (i, j) {
-    if(this.listLife.isAlive(i, j)) {
-      this.changeCelltoDead(i, j);
-      this.listLife.removeCell(i, j, this.listLife.actualState);
-    }else {
-      this.changeCelltoAlive(i, j);
-      this.listLife.addCell(i, j, this.listLife.actualState);
-    }
-  }
-
 
   /**
    * keepCellAlive

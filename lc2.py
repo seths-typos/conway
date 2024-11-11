@@ -19,11 +19,20 @@ for root, dirs, files in os.walk(directory, topdown=False):
 			i = 0
 			j = 0
 			while i < len(code):
-				if (code[i].isdigit()):
-					amt = int(code[i])
+				cur = code[i]
+
+				if (cur.isdigit()):
+
+					amt = int(cur)
+					aft = code[i+1]
+					tester = aft
+
+					if aft.isdigit():
+						amt = int(cur+aft)
+						tester = code[i+2]
 					
 					for _ in range(amt):
-						if (code[i+1] == "o"):
+						if (tester == "o"):
 							arr.append(j)
 
 						j += 1
