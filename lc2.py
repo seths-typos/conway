@@ -6,11 +6,18 @@ directory = sys.argv[1]
 for root, dirs, files in os.walk(directory, topdown=False):
 	for file in files:
 		with open(os.path.join(root, file), 'r') as f:
-			for line in f:
-				pass
-			lines = line[:-2].split("$")
+			lines = ""
+			i = 0
+			print(f)
 
-			f.closed
+			for line in f:
+				if (i > 1 and line != "!\n"):
+					lines = lines + line.strip(' \n!')
+				i = i+1
+
+			print("thie lines are", lines)
+			lines = lines.split("$")
+			f.close()
 
 		# process characters
 
@@ -53,8 +60,7 @@ for root, dirs, files in os.walk(directory, topdown=False):
 		longest = 0
 		for line in lines:	
 			processed = process(line)
-
-			if (processed[-1] + 1 > longest):
+			if (len(processed) > 0 and processed[-1] + 1 > longest):
 				longest = processed[-1] + 1
 
 

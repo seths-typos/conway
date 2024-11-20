@@ -1,5 +1,5 @@
 var GAME = null;
-var LETTERS = {"A":A, "B": B,"C": C, "D": D,"E": E,"F": F, "G":G, "H": H,"I": I, "J": J,"K": K,"L": L, "M":M, "N": N,"O": O, "P": P,"Q": Q,"R": R, "S":S, "T": T,"U": U};
+var LETTERS = {"A":A, "B": B,"C": C, "D": D,"E": E,"F": F, "G":G, "H": H,"I": I, "J": J,"K": K,"L": L, "M":M, "N": N,"O": O, "P": P,"Q": Q,"R": R, "S":S, "T": T,"U": U,"V": V,"W": W,"X": X,"Y": Y,"Z":Z};
 var INTERVAL_ID = null;
 
 window.onload = ()=>{
@@ -43,15 +43,19 @@ window.onload = ()=>{
         }
     });
 
-    document.onkeypress = function (e) {
+    document.onkeydown = function (e) {
         e = e || window.event;
+
+        // GAME.nextGeneration(); // makes it evolve after each step
 
         if (e.keyCode == 32) {
             GAME.addSpace();
+        } else if (e.key === "Backspace" || e.key === "Delete") {
+            GAME.deleteLetter();
         } else {
             GAME.typeLetter(LETTERS[e.key.toUpperCase()]);    
         }
         
-        GAME.drawCells();
+        GAME.redrawWorld();
     };    
 };

@@ -15,10 +15,12 @@ class Game {
     let baseColor = '#000000';
 
     // Variables
-    this.waitTime = 80;
-    this.waitCap = 5;
-    let waitSteps = 8
-    this.waitStep = Math.round((this.waitTime - this.waitCap)/waitSteps);
+    this.waitTime = 3;
+    this.waitCap = 3;
+    this.alphaCap = 3;
+    // let waitSteps = 7;
+    // this.waitStep = Math.round((this.waitTime - this.waitCap)/waitSteps);
+    this.waitRate = 1;
     this.count = 0
     this.alphaStep = 1 / ((this.waitTime - this.waitCap) / this.waitStep);
     this.firstRun = true;
@@ -28,7 +30,6 @@ class Game {
 
     this.curAlpha = 1;
 
-
     // Clear state
     this.clear = false;
 
@@ -37,7 +38,7 @@ class Game {
     // this.initialState = '';
 
     // Trail state
-    this.trail = false;
+    this.trail = true;
 
     // Grid style
     this.gridColor = baseColor;
@@ -46,7 +47,7 @@ class Game {
     this.zoom = {
       columns : null,
       rows : null,
-      cellSize : 10
+      cellSize : 5
     };
 
     // Cell colors
@@ -58,9 +59,11 @@ class Game {
 
     // Text
     this.line = 0;
-    this.insertionPoint = 0;
-    this.marginTop = 20;
+    this.marginTop = 10;
     this.marginLeft = null;
+    this.insertionPoints = [];
+    this.letterSpacing = 1;
+    this.lineHeight = 10;
 
     // ListLife Variables
     this.actualState = [];
@@ -101,6 +104,7 @@ class Game {
     this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
 
     this.marginLeft = Math.round(this.rows/7);
+    this.insertionPoints.push(this.marginLeft);
   }
 
   /**
@@ -125,51 +129,34 @@ class Game {
    */
   nextStep () {
     this.context.clearRect(0,0,this.width, this.height)
-
     
-    if (this.firstRun) {
-      this.context.globalAlpha = (this.waitTime - this.count) / this.waitTime;
-    } else if (this.count < this.waitTime/2) {
-      this.context.globalAlpha += (1 - this.curAlpha) / (this.waitTime/2);
-    } else if (this.waitTime == this.waitCap) {
-      this.context.globalAlpha = 1;
-    } else {
-      this.context.globalAlpha -= (1 - this.curAlpha - this.alphaStep)/(this.waitTime/2);
-    }
+    // this._updateAlpha();
     
     // Algorithm run
-    console.log("COUNT", this.count, "WAIT TIME", this.waitTime, "WAIT STEP", this.waitStep, "WAIT CAP", this.waitCap)
     if (this.count == this.waitTime) {
       var liveCellNumber = this.nextGeneration();
       this.drawRedraws();
 
       this.count = 0;
 
-      if (this.waitTime - this.waitStep > this.waitCap) {
-        this.waitTime -= this.waitStep;
-        this.curAlpha = this.context.globalAlpha;
-      }  else {
-        this.waitTime = this.waitCap;
-      }
+      // if (this.waitTime * this.waitRate > this.waitCap) {
+      //   this.waitTime = Math.round(this.waitTime * this.waitRate);
+      //   this.waitRate *= this.waitRate;
+      //   this.curAlpha = this.context.globalAlpha;
+      // } else {
+      //   this.waitTime = this.waitCap;
+      // }
 
-      if (this.firstRun) {
-        this.firstRun = false;
-      }
+      // if (this.firstRun) {
+      //   this.firstRun = false;
+      // }
     } else {
       this.drawCells();
       this.count += 1;
     }
 
-
-
-    // Canvas run
-
     // Flow Control
     if (this.running) { 
-      // let that = this
-      // setTimeout(function() {
-      //   that.nextStep();
-      // }, this.waitTime);
       requestAnimationFrame(this.nextStep.bind(this));
     } else {
       if (this.clear) {
@@ -192,6 +179,23 @@ class Game {
       } else {
         this.changeCelltoDead(x, y);
       }
+    }
+  }
+
+  _updateAlpha () {
+    if (this.firstRun) {
+      this.context.globalAlpha = (this.waitTime - this.count) / this.waitTime;
+    } else if (this.waitTime <= this.alphaCap) {
+      console.log("no fading")
+      this.context.globalAlpha = 1;
+    } else if (this.count < this.waitTime/2) {
+      console.log("fade in before", this.context.globalAlpha)
+      this.context.globalAlpha += (1 - this.curAlpha) / (this.waitTime/2);
+      console.log("fade in after", this.context.globalAlpha)
+    }  else {
+      console.log("fade out before", this.context.globalAlpha)
+      this.context.globalAlpha -= (1 - this.curAlpha * this.waitRate)/(this.waitTime/2);
+      console.log("fade out", this.context.globalAlpha)
     }
   }
 
@@ -227,6 +231,11 @@ class Game {
         this.age[i][j] = 0; // Dead
       }
     }
+  }
+
+  redrawWorld () {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawCells();
   }
 
 
@@ -533,7 +542,7 @@ class Game {
    */
   removeCell (x, y, state) {
     var i, j;
-  
+
     for (i = 0; i < state.length; i++) {
       if (state[i][0] === y) {
 
@@ -546,6 +555,7 @@ class Game {
             }
           }
         }
+
       }
     }
   }
@@ -554,13 +564,15 @@ class Game {
    * 
    */
   addSpace() {
-    this.insertionPoint = this.insertionPoint + 7
+    let newPoint = this._getLastInsertionPoint() + 7;
+    this.insertionPoints.push(newPoint)
   }
 
   typeLetter (ltr) {
     try {
-      this.addString(ltr)
-      this.insertionPoint = this.insertionPoint + ltr.width+1;
+      this.addString(ltr);
+      let newPoint = this._getLastInsertionPoint() + ltr.width + this.letterSpacing;
+      this.insertionPoints.push(newPoint)
     } catch (e) {
       console.log(e);
     }
@@ -575,23 +587,59 @@ class Game {
 
     state = JSON.parse(decodeURI(str.code));
 
-    if (this.insertionPoint+this.marginLeft+str.width > this.columns - this.marginLeft) {
+    if (this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft) {
       newLine = true;
       this.line = this.line + 1;
-      this.insertionPoint = 0;
+      this.insertionPoints.push(this.marginLeft);
     } 
 
     for (i = 0; i < state.length; i++) {
       for (k in state[i]) {
         for (j = 0 ; j < state[i][k].length ; j++) {
-          x = state[i][k][j]+this.marginLeft + this.insertionPoint;
+          x = state[i][k][j] + this._getLastInsertionPoint();
 
-          y = parseInt(k, 10) + this.marginTop + this.line*10;
+          y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight;
 
           this.addCell(x, y, this.actualState);
         }
       }
     }
+  }
+
+  deleteLetter () {
+    var xPos, yPos, row;
+    this.insertionPoints.pop();
+
+    xPos = this._getLastInsertionPoint() - this.letterSpacing;
+    yPos = this.line*this.lineHeight+this.marginTop;
+
+    if (yPos > this.actualState[this.actualState.length - 1][0]) {
+      this.line--;
+      yPos = this.line*this.lineHeight+this.marginTop;
+      
+      this.insertionPoints.pop();
+      xPos = this._getLastInsertionPoint() - this.letterSpacing;
+    }
+
+    // go through rows and delete all x values between prior and this insertion point
+    for (let i = yPos; i < yPos + 8; i++) {
+      // find starting row
+      for (let j = 0; j < this.actualState.length; j++) {
+        if (this.actualState[j][0] === i) {
+          row = j;
+        }
+      }
+
+      let idx = this.actualState[row].length - 1;
+      while (idx > 0 && this.actualState[row][idx] > xPos) {
+        this.removeCell(this.actualState[row][idx], i, this.actualState);
+        idx--;
+      }
+    }
+  }
+
+  _getLastInsertionPoint () {
+    return this.insertionPoints[this.insertionPoints.length - 1];
   }
 
 
@@ -659,7 +707,6 @@ class Game {
           for (k = 0; k < newState.length; k++) {
             state[k] = newState[k];
           }
-
           return;
         }
       }
