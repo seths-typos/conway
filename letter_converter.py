@@ -2,6 +2,9 @@ import sys
 
 file = sys.argv[1]
 
+import os
+for file in os.listdir(os.getcwd()):
+
 with open(file, 'r') as f:
 	for line in f:
 		pass

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <link rel="stylesheet" type="text/css" href="src/css/style.css" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+
+    <title>Conway's Game of Life - Javascript/Canvas Implementation</title>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div class="box controls" id="controls">
+        <form action="">
+          <input type="button" value="Run" id="buttonRun" />
+          <input type="button" value="Step" id="buttonStep" />
+          <input type="button" value="Clear" id="buttonClear" />
+          <select id="fontSelector"></select>
+        </form>
+      </div>
+      <canvas id="canvas" width="901" height="433"></canvas>
+    </div>
+    <script src="dist/js/main.js"></script>
+  </body>
+</html>
