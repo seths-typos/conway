@@ -14,9 +14,9 @@ gulp.task('clean', async function(done) {
 });
 
 gulp.task('jsBundle', async function(done) {
-  return gulp.src(['assets/letters/*.js',
-            // 'src/js/board.js',
-            // 'src/js/typer.js',
+  return gulp.src([
+            'src/js/letters.js',
+            'src/js/typer.js',
             'src/js/game.js',
             // 'src/js/config.js',
             'src/js/kickoff.js'

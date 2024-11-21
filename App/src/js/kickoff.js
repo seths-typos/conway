@@ -1,6 +1,6 @@
 var GAME = null;
-var LETTERS = {"A":A, "B": B,"C": C, "D": D,"E": E,"F": F, "G":G, "H": H,"I": I, "J": J,"K": K,"L": L, "M":M, "N": N,"O": O, "P": P,"Q": Q,"R": R, "S":S, "T": T,"U": U,"V": V,"W": W,"X": X,"Y": Y,"Z":Z};
 var INTERVAL_ID = null;
+var CUR_FONT = null;
 
 window.onload = ()=>{
     GAME = new Game({});
@@ -9,12 +9,22 @@ window.onload = ()=>{
     let startButton = document.getElementById("buttonRun")
     let stepButton = document.getElementById("buttonStep")
     let clearButton = document.getElementById("buttonClear")
+    let fontSelector = document.getElementById("fontSelector")
+
+    for (font in LETTERS) {
+        let opt = document.createElement('option');
+        opt.value = font;
+        opt.innerHTML = font;
+        fontSelector.appendChild(opt);
+    }
+
+    CUR_FONT = fontSelector.value;
+    GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
 
     startButton.addEventListener('click', (event) => {
         GAME.running = !GAME.running;
 
         if (GAME.running) {
-          console.log(GAME)
           GAME.nextStep();
           document.getElementById('buttonRun').value = 'Stop';
         } else {
@@ -43,6 +53,11 @@ window.onload = ()=>{
         }
     });
 
+    fontSelector.addEventListener('change', ()=>{
+        CUR_FONT = fontSelector.value;
+        GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
+    })
+
     document.onkeydown = function (e) {
         e = e || window.event;
 
@@ -53,7 +68,7 @@ window.onload = ()=>{
         } else if (e.key === "Backspace" || e.key === "Delete") {
             GAME.deleteLetter();
         } else {
-            GAME.typeLetter(LETTERS[e.key.toUpperCase()]);    
+            GAME.typeLetter(LETTERS[CUR_FONT][e.key.toUpperCase()]);    
         }
         
         GAME.redrawWorld();

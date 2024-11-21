@@ -64,6 +64,7 @@ class Game {
     this.insertionPoints = [];
     this.letterSpacing = 1;
     this.lineHeight = 10;
+    this.leading = 4;
 
     // ListLife Variables
     this.actualState = [];
@@ -105,6 +106,11 @@ class Game {
 
     this.marginLeft = Math.round(this.rows/7);
     this.insertionPoints.push(this.marginLeft);
+  }
+
+  setCapHeight (ltr) {
+    let v = JSON.parse(ltr.code)
+    this.lineHeight = v.length + this.leading;
   }
 
   /**
@@ -585,7 +591,7 @@ class Game {
   addString (str) {
     var state, i, j, k, x, y, newLine;
 
-    state = JSON.parse(decodeURI(str.code));
+    state = JSON.parse(str.code);
 
     if (this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft) {
       newLine = true;
@@ -622,7 +628,7 @@ class Game {
     }
 
     // go through rows and delete all x values between prior and this insertion point
-    for (let i = yPos; i < yPos + 8; i++) {
+    for (let i = yPos; i < yPos + this.lineHeight-this.leading; i++) {
       // find starting row
       for (let j = 0; j < this.actualState.length; j++) {
         if (this.actualState[j][0] === i) {
@@ -641,7 +647,6 @@ class Game {
   _getLastInsertionPoint () {
     return this.insertionPoints[this.insertionPoints.length - 1];
   }
-
 
   /**
    *

@@ -3,96 +3,110 @@ import os
 
 directory = sys.argv[1]
 
+# process characters
+
+def process(code):
+	arr = []
+	i = 0
+	j = 0
+	while i < len(code):
+		cur = code[i]
+
+		if (cur.isdigit()):
+
+			amt = int(cur)
+			aft = code[i+1]
+			tester = aft
+
+			if aft.isdigit():
+				amt = int(cur+aft)
+				tester = code[i+2]
+			
+			for _ in range(amt):
+				if (tester == "o"):
+					arr.append(j)
+
+				j += 1
+
+			i += 1
+		else:
+			if (code[i] == "o"):
+				arr.append(j)
+			j += 1 
+
+		i+=1
+
+	return (arr)
+
+# write new file
+file_path = "app/src/js/letters.js"
+
+letter_file = open(file_path, "w")
+
+letter_file.write("const LETTERS = {")
+
+json = ""
+
 for root, dirs, files in os.walk(directory, topdown=False):
-	for file in files:
-		with open(os.path.join(root, file), 'r') as f:
-			lines = ""
-			i = 0
-			print(f)
+	for d in dirs:
 
-			for line in f:
-				if (i > 1 and line != "!\n"):
-					lines = lines + line.strip(' \n!')
-				i = i+1
+		json += "\n\t\'"+d+"\': {"
 
-			print("thie lines are", lines)
-			lines = lines.split("$")
-			f.close()
+		for root, dirs, files in os.walk(os.path.join(directory, d), topdown=False):
+			file_idx = 0
+			for file in files:
+				file_idx += 1
 
-		# process characters
+				if file[0] == ".":
+					continue
 
-		def process(code):
-			arr = []
-			i = 0
-			j = 0
-			while i < len(code):
-				cur = code[i]
+				with open(os.path.join(root, file), 'r') as f:
+					lines = ""
+					i = 0
 
-				if (cur.isdigit()):
+					for line in f:
+						if (i > 1 and line != "!\n"):
+							lines = lines + line.strip(' \n!')
+						i = i+1
 
-					amt = int(cur)
-					aft = code[i+1]
-					tester = aft
+					lines = lines.split("$")
+					f.close()
 
-					if aft.isdigit():
-						amt = int(cur+aft)
-						tester = code[i+2]
-					
-					for _ in range(amt):
-						if (tester == "o"):
-							arr.append(j)
-
-						j += 1
-
-					i += 1
-				else:
-					if (code[i] == "o"):
-						arr.append(j)
-					j += 1 
-
-				i+=1
-
-			return (arr)
-
-		new_file = file.split(".")[0][-3:]
-
-		processed_lines = []
-		longest = 0
-		for line in lines:	
-			processed = process(line)
-			if (len(processed) > 0 and processed[-1] + 1 > longest):
-				longest = processed[-1] + 1
+				processed_lines = []
+				longest = 0
+				for line in lines:	
+					processed = process(line)
+					if (len(processed) > 0 and processed[-1] + 1 > longest):
+						longest = processed[-1] + 1
 
 
-			processed_lines.append(process(line))
+					processed_lines.append(process(line))
 
+				i = 0
+				json += "\n\t\t\'"+file.split(".")[0]+"\': {\n\t\t\t\'width\':" + str(longest)+",\n\t\t\t\'code\': \'["
 
-		# write new file
+				while i < len(processed_lines):
+					arr = '{\"'+str(i)+'\": ['
 
-		file_path = "App/Assets/Letters/"+new_file[0]+".js"
+					for char in processed_lines[i]:
+						arr = arr + str(char) +', '
 
-		f = open(file_path, "w")
+					arr = arr[:-2] + ']}'
 
-		i = 0
-		f.write("const "+new_file[0].upper()+" = {\n\t\"width\":" + str(longest)+",\n\t\"code\": \'[")
+					if i == len(processed_lines) - 1:
+						arr += "]\'\n\t\t}"
 
-		while i < len(processed_lines):
-			arr = '{\"'+str(i)+'\": ['
+						if file_idx != len(files):
+							arr += ","
+					else:
+						arr += ","
 
-			for char in processed_lines[i]:
-				arr = arr + str(char) +', '
+					i+=1
 
-			arr = arr[:-2] + ']}'
-
-			if i == len(processed_lines) - 1:
-				arr += "]\'\n}"
-			else:
-				arr += ","
-
-			i+=1
-
-			f.write(arr)
-
-		f.close()
+					json += arr
+			
+		json += "\n\t},"
+letter_file.write(json[0:-1] + "\n}")
+letter_file.close()
 
 
