@@ -13,20 +13,21 @@ def process(code):
 		cur = code[i]
 
 		if (cur.isdigit()):
-
 			amt = int(cur)
-			aft = code[i+1]
-			tester = aft
+			if i + 1 < len(code):
+				aft = code[i+1]
+				tester = aft
 
-			if aft.isdigit():
-				amt = int(cur+aft)
-				tester = code[i+2]
-			
-			for _ in range(amt):
-				if (tester == "o"):
-					arr.append(j)
+				if aft.isdigit():
+					amt = int(cur+aft)
+					tester = code[i+2]
+					i+=1
 
-				j += 1
+				for _ in range(amt):
+					if (tester == "o"):
+						arr.append(j)
+
+					j += 1
 
 			i += 1
 		else:
@@ -39,7 +40,7 @@ def process(code):
 	return (arr)
 
 # write new file
-file_path = "app/src/js/letters.js"
+file_path = "docs/src/js/letters.js"
 
 letter_file = open(file_path, "w")
 
@@ -65,6 +66,7 @@ for root, dirs, files in os.walk(directory, topdown=False):
 					i = 0
 
 					for line in f:
+
 						if (i > 1 and line != "!\n"):
 							lines = lines + line.strip(' \n!')
 						i = i+1
@@ -76,22 +78,29 @@ for root, dirs, files in os.walk(directory, topdown=False):
 				longest = 0
 				for line in lines:	
 					processed = process(line)
+
 					if (len(processed) > 0 and processed[-1] + 1 > longest):
 						longest = processed[-1] + 1
 
 
-					processed_lines.append(process(line))
+					processed_lines.append(processed)
+
+					if(line[-1].isdigit()):
+						for _ in range(int(line[-1])-1):
+							processed_lines.append([])
 
 				i = 0
-				json += "\n\t\t\'"+file.split(".")[0]+"\': {\n\t\t\t\'width\':" + str(longest)+",\n\t\t\t\'code\': \'["
-
+				json += "\n\t\t\'"+file.split(".")[0].replace('_', '')+"\': {\n\t\t\t\'width\':" + str(longest)+",\n\t\t\t\'code\': \'["
 				while i < len(processed_lines):
 					arr = '{\"'+str(i)+'\": ['
 
 					for char in processed_lines[i]:
 						arr = arr + str(char) +', '
 
-					arr = arr[:-2] + ']}'
+					if (len(processed_lines[i])>0):
+						arr = arr[:-2] + ']}'
+					else:
+						arr = arr + ']}'
 
 					if i == len(processed_lines) - 1:
 						arr += "]\'\n\t\t}"

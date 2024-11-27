@@ -46,7 +46,7 @@ window.onload = ()=>{
     */
     clearButton.addEventListener('click', (event) => {
         if (GAME.running) {
-          GAME.running = false;
+          GAME.reset()
           document.getElementById('buttonRun').value = 'Run';
         } else {
           GAME.cleanUp();
@@ -62,14 +62,20 @@ window.onload = ()=>{
         e = e || window.event;
 
         // GAME.nextGeneration(); // makes it evolve after each step
-
-        if (e.keyCode == 32) {
-            GAME.addSpace();
-        } else if (e.key === "Backspace" || e.key === "Delete") {
-            GAME.deleteLetter();
-        } else {
-            GAME.typeLetter(LETTERS[CUR_FONT][e.key.toUpperCase()]);    
+        try {
+            if (e.keyCode == 32) {
+                GAME.addSpace();
+            } else if (e.key === "Backspace" || e.key === "Delete") {
+                GAME.deleteLetter();
+            } else if (/[\.\,\-\:\;\!\?]/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT][e.code]);    
+            } else {
+                GAME.typeLetter(LETTERS[CUR_FONT][e.key]);    
+            }    
+        } catch (e) {
+            console.log(e)
         }
+        
         
         GAME.redrawWorld();
     };    

@@ -16,7 +16,7 @@ class Game {
 
     // Variables
     this.waitTime = 3;
-    this.waitCap = 3;
+    this.waitCap = 1;
     this.alphaCap = 3;
     // let waitSteps = 7;
     // this.waitStep = Math.round((this.waitTime - this.waitCap)/waitSteps);
@@ -96,6 +96,11 @@ class Game {
     }
   }
 
+  reset () {
+    this.running = false;
+    this.clearWorld();
+  }
+
 
   setGridSize () {
     this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
@@ -105,7 +110,6 @@ class Game {
     this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
 
     this.marginLeft = Math.round(this.rows/7);
-    this.insertionPoints.push(this.marginLeft);
   }
 
   setCapHeight (ltr) {
@@ -228,6 +232,8 @@ class Game {
    */
   clearWorld () {
     var i, j;
+
+    this.insertionPoints = [this.marginLeft]
 
     // Init ages (Canvas reference)
     this.age = [];
@@ -599,12 +605,13 @@ class Game {
       this.insertionPoints.push(this.marginLeft);
     } 
 
+
     for (i = 0; i < state.length; i++) {
       for (k in state[i]) {
         for (j = 0 ; j < state[i][k].length ; j++) {
           x = state[i][k][j] + this._getLastInsertionPoint();
 
-          y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight;
+          y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight+(this.lineHeight-state.length);
 
           this.addCell(x, y, this.actualState);
         }
@@ -617,31 +624,32 @@ class Game {
     this.insertionPoints.pop();
 
     xPos = this._getLastInsertionPoint() - this.letterSpacing;
-    yPos = this.line*this.lineHeight+this.marginTop;
+    yPos = this.line*this.lineHeight+this.marginTop+this.leading;
+    
 
     if (yPos > this.actualState[this.actualState.length - 1][0]) {
       this.line--;
-      yPos = this.line*this.lineHeight+this.marginTop;
+      yPos = this.line*this.lineHeight+this.marginTop+this.leading;
       
       this.insertionPoints.pop();
       xPos = this._getLastInsertionPoint() - this.letterSpacing;
     }
 
-    // go through rows and delete all x values between prior and this insertion point
-    for (let i = yPos; i < yPos + this.lineHeight-this.leading; i++) {
-      // find starting row
-      for (let j = 0; j < this.actualState.length; j++) {
-        if (this.actualState[j][0] === i) {
-          row = j;
-        }
-      }
+    
+    // nested while loops going back from beginning and checking 
 
-      let idx = this.actualState[row].length - 1;
-      while (idx > 0 && this.actualState[row][idx] > xPos) {
-        this.removeCell(this.actualState[row][idx], i, this.actualState);
+    // go through rows and delete all x values between prior and this insertion point
+    let i = this.actualState.length-1
+    do {
+
+      let idx = this.actualState[i].length - 1;
+      while (idx > 0 && this.actualState[i][idx] >= xPos) {
+        this.removeCell(this.actualState[i][idx], this.actualState[i][0], this.actualState);
         idx--;
       }
-    }
+
+      i--
+    } while (i >= 0 && this.actualState[i][0] >= yPos)
   }
 
   _getLastInsertionPoint () {
