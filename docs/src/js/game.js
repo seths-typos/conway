@@ -15,7 +15,7 @@ class Game {
     let baseColor = '#000000';
 
     // Variables
-    this.waitTime = 3;
+    this.waitTime = 2;
     this.waitCap = 1;
     this.alphaCap = 3;
     // let waitSteps = 7;
@@ -98,7 +98,7 @@ class Game {
 
   reset () {
     this.running = false;
-    this.clearWorld();
+    this.cleanUp();
   }
 
 
@@ -121,8 +121,10 @@ class Game {
    * Clean up actual state and prepare a new run
    */
   cleanUp () {
+    this.line = 0;
     this.actualState = []; // Reset/init algorithm
-    this.prepare();
+    this.clearWorld();
+    this.redrawWorld();
   }
 
 

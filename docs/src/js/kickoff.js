@@ -6,10 +6,12 @@ window.onload = ()=>{
     GAME = new Game({});
     GAME.init();
 
-    let startButton = document.getElementById("buttonRun")
-    let stepButton = document.getElementById("buttonStep")
-    let clearButton = document.getElementById("buttonClear")
-    let fontSelector = document.getElementById("fontSelector")
+    let startButton = document.getElementById("buttonRun");
+    let stepButton = document.getElementById("buttonStep");
+    let clearButton = document.getElementById("buttonClear");
+    let fontSelector = document.getElementById("fontSelector");
+    let textField = document.getElementById("textField");
+    let typeButton = document.getElementById("typeButton");
 
     for (font in LETTERS) {
         let opt = document.createElement('option');
@@ -18,6 +20,7 @@ window.onload = ()=>{
         fontSelector.appendChild(opt);
     }
 
+    fontSelector.value = 'Mortal'
     CUR_FONT = fontSelector.value;
     GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
 
@@ -58,9 +61,19 @@ window.onload = ()=>{
         GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
     })
 
+    typeButton.addEventListener('click', (event) => {
+        GAME.reset()
+        document.getElementById('buttonRun').value = 'Run';
+
+        typeString(textField.value);
+    })
+
     document.onkeydown = function (e) {
         e = e || window.event;
 
+        if (textField === document.activeElement) {
+            return;
+        }
         // GAME.nextGeneration(); // makes it evolve after each step
         try {
             if (e.keyCode == 32) {

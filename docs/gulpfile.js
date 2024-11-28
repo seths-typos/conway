@@ -18,9 +18,7 @@ gulp.task('jsBundle', async function(done) {
             'src/js/letters.js',
             'src/js/typer.js',
             'src/js/game.js',
-            // 'src/js/config.js',
             'src/js/kickoff.js'
-            // 'src/original/*.js'
             ])
   .pipe(uglify())
   .pipe(concat('main.js'))
