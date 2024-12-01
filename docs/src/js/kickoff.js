@@ -78,6 +78,8 @@ window.onload = ()=>{
         try {
             if (e.keyCode == 32) {
                 GAME.addSpace();
+            } else if (e.key === 'Enter') {
+                GAME.carriageReturn();
             } else if (e.key === "Backspace" || e.key === "Delete") {
                 GAME.deleteLetter();
             } else if (/[\.\,\-\:\;\!\?]/.test(e.key)){

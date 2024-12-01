@@ -12,6 +12,7 @@
 class Game {
 
   constructor () {
+    console.log("new game", this)
     let baseColor = '#000000';
 
     // Variables
@@ -45,9 +46,9 @@ class Game {
 
     // Zoom level
     this.zoom = {
-      columns : null,
-      rows : null,
-      cellSize : 5
+      columns : 100,
+      rows : 100,
+      cellSize : 4
     };
 
     // Cell colors
@@ -103,11 +104,11 @@ class Game {
 
 
   setGridSize () {
-    this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
+    // this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
 
     let offset = document.getElementById("controls").getBoundingClientRect();
 
-    this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
+    // this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
 
     this.marginLeft = Math.round(this.rows/7);
   }
@@ -163,7 +164,7 @@ class Game {
       //   this.firstRun = false;
       // }
     } else {
-      this.drawCells();
+      this.redrawWorld();
       this.count += 1;
     }
 
@@ -319,10 +320,10 @@ class Game {
 
     let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
     let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
-    // this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
-    this.context.beginPath();
-    this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
-    this.context.fill();
+    this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
+    // this.context.beginPath();
+    // this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
+    // this.context.fill();
   }
 
   /**
@@ -577,9 +578,14 @@ class Game {
   /**
    * 
    */
-  addSpace() {
+  addSpace () {
     let newPoint = this._getLastInsertionPoint() + 7;
     this.insertionPoints.push(newPoint)
+  }
+
+  carriageReturn () {
+    this.insertionPoints.push(this.marginLeft)
+    this.line += 1;
   }
 
   typeLetter (ltr) {
