@@ -48,7 +48,7 @@ class Game {
     this.zoom = {
       columns : 100,
       rows : 100,
-      cellSize : 4
+      cellSize : 1
     };
 
     // Cell colors
@@ -68,7 +68,7 @@ class Game {
     this.leading = 4;
 
     // ListLife Variables
-    this.actualState = [];
+    this.actualState = {};
     this.redrawList = [];
     this.topPointer = 1;
     this.middlePointer = 1;
@@ -104,11 +104,11 @@ class Game {
 
 
   setGridSize () {
-    // this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
+    this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
 
     let offset = document.getElementById("controls").getBoundingClientRect();
 
-    // this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
+    this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
 
     this.marginLeft = Math.round(this.rows/7);
   }
@@ -123,7 +123,7 @@ class Game {
    */
   cleanUp () {
     this.line = 0;
-    this.actualState = []; // Reset/init algorithm
+    this.actualState = {}; // Reset/init algorithm
     this.clearWorld();
     this.redrawWorld();
   }
@@ -146,7 +146,7 @@ class Game {
     // this._updateAlpha();
     
     // Algorithm run
-    if (this.count == this.waitTime) {
+    if (this.count == this.waitTime || !this.running) {
       var liveCellNumber = this.nextGeneration();
       this.drawRedraws();
 
@@ -272,18 +272,22 @@ class Game {
     this.drawCells();    
   }
 
-  drawCells() {
-    var i, j;
-
-    for (i = 0 ; i < this.columns; i++) {
-      for (j = 0 ; j < this.rows; j++) {
-        if (this.isAlive(i, j)) {
-          this.drawCell(i, j, true);
-        } else {
-          this.drawCell(i, j, false);
-        }
+  drawCells () {
+    for (let row in this.actualState) {
+      for (let col of this.actualState[row]) {
+        this.drawCell(col, row, true);
       }
     }
+
+    // for (i = 0 ; i < this.columns; i++) {
+    //   for (j = 0 ; j < this.rows; j++) {
+    //     if (this.isAlive(i, j)) {
+    //       this.drawCell(i, j, true);
+    //     } else {
+    //       this.drawCell(i, j, false);
+    //     }
+    //   }
+    // }
   }
 
 
@@ -366,22 +370,23 @@ class Game {
     
    
   nextGeneration () {
-    var x, y, i, j, m, n, key, t1, t2, alive = 0, neighbours, deadNeighbours, allDeadNeighbours = {}, newState = [];
+    var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = {};
     this.redrawList = [];
 
-    for (i = 0; i < this.actualState.length; i++) {
+
+    for (const row in this.actualState) {
       this.topPointer = 1;
       this.bottomPointer = 1;
                 
-      for (j = 1; j < this.actualState[i].length; j++) {
-        x = this.actualState[i][j];
-        y = this.actualState[i][0];
+      for (const col of this.actualState[row]) {
+        let x = col;
+        let y = parseInt(row);
 
         // Possible dead neighbours
-        deadNeighbours = [[x-1, y-1, 1], [x, y-1, 1], [x+1, y-1, 1], [x-1, y, 1], [x+1, y, 1], [x-1, y+1, 1], [x, y+1, 1], [x+1, y+1, 1]];
+        let deadNeighbours = [[x-1, y-1, 1], [x, y-1, 1], [x+1, y-1, 1], [x-1, y, 1], [x+1, y, 1], [x-1, y+1, 1], [x, y+1, 1], [x+1, y+1, 1]];
 
         // Get number of live neighbours and remove alive neighbours from deadNeighbours
-        neighbours = this.getNeighboursFromAlive(x, y, i, deadNeighbours);
+        let neighbours = this.getNeighboursFromAlive(x, y, deadNeighbours);
 
         // Join dead neighbours to check list
         for (m = 0; m < 8; m++) {
@@ -429,102 +434,42 @@ class Game {
   /**
          *
          */
-  getNeighboursFromAlive  (x, y, i, possibleNeighboursList) {
+  getNeighboursFromAlive  (x, y, possibleNeighboursList) {
     var neighbours = 0, k;
 
-    // Top
-    if (this.actualState[i-1] !== undefined) {
-      if (this.actualState[i-1][0] === (y - 1)) {
-        for (k = this.topPointer; k < this.actualState[i-1].length; k++) {
+    let rowAbove = (y - 1).toString();
+    let rowBelow = (y + 1).toString();
 
-          if (this.actualState[i-1][k] >= (x-1) ) {
-
-            if (this.actualState[i-1][k] === (x - 1)) {
-              possibleNeighboursList[0] = undefined;
-              this.topPointer = k + 1;
-              neighbours++;
-            }
-
-            if (this.actualState[i-1][k] === x) {
-              possibleNeighboursList[1] = undefined;
-              this.topPointer = k;
-              neighbours++;
-            }
-
-            if (this.actualState[i-1][k] === (x + 1)) {
-              possibleNeighboursList[2] = undefined;
-
-              if (k == 1) {
-                this.topPointer = 1;
-              } else {
-                this.topPointer = k - 1;
-              }
-                                
-              neighbours++;
-            }
-
-            if (this.actualState[i-1][k] > (x + 1)) {
-              break;
-            }
-          }
+    let testers = [x - 1, x, x + 1];
+    
+    for (let i = 0; i < testers.length; i++) {  
+      // Top
+      if (rowAbove in this.actualState) {   
+        if (this.actualState[rowAbove].has(testers[i])){
+          possibleNeighboursList[i] = undefined;
+          neighbours++;
         }
       }
-    }
-    
-    // Middle
-    for (k = 1; k < this.actualState[i].length; k++) {
-      if (this.actualState[i][k] >= (x - 1)) {
 
-        if (this.actualState[i][k] === (x - 1)) {
+      // Middle (Skipping central cell)
+      if (i === 0) {
+        if (this.actualState[y].has(testers[i])){
           possibleNeighboursList[3] = undefined;
           neighbours++;
-        }
+        } 
+      }
 
-        if (this.actualState[i][k] === (x + 1)) {
+      if (i === 0) {
+        if (this.actualState[y].has(testers[i])){
           possibleNeighboursList[4] = undefined;
           neighbours++;
-        }
-
-        if (this.actualState[i][k] > (x + 1)) {
-          break;
-        }
+        } 
       }
-    }
 
-    // Bottom
-    if (this.actualState[i+1] !== undefined) {
-      if (this.actualState[i+1][0] === (y + 1)) {
-        for (k = this.bottomPointer; k < this.actualState[i+1].length; k++) {
-          if (this.actualState[i+1][k] >= (x - 1)) {
-
-            if (this.actualState[i+1][k] === (x - 1)) {
-              possibleNeighboursList[5] = undefined;
-              this.bottomPointer = k + 1;
-              neighbours++;
-            }
-
-            if (this.actualState[i+1][k] === x) {
-              possibleNeighboursList[6] = undefined;
-              this.bottomPointer = k;
-              neighbours++;
-            }
-
-            if (this.actualState[i+1][k] === (x + 1)) {
-              possibleNeighboursList[7] = undefined;
-                                
-              if (k == 1) {
-                this.bottomPointer = 1;
-              } else {
-                this.bottomPointer = k - 1;
-              }
-
-              neighbours++;
-            }
-
-            if (this.actualState[i+1][k] > (x + 1)) {
-              break;
-            }
-          }
+      if (rowBelow in this.actualState) {   
+        if (this.actualState[rowBelow].has(testers[i])){
+          possibleNeighboursList[i+5] = undefined;
+          neighbours++;
         }
       }
     }
@@ -537,18 +482,7 @@ class Game {
    *
    */
   isAlive (x, y) {
-    var i, j;
-  
-    for (i = 0; i < this.actualState.length; i++) {
-      if (this.actualState[i][0] === y) {
-        for (j = 1; j < this.actualState[i].length; j++) {
-          if (this.actualState[i][j] === x) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+    return this.actualState[y] && this.actualState[y].has(x);
   }
 
 
@@ -627,38 +561,38 @@ class Game {
     }
   }
 
-  deleteLetter () {
-    var xPos, yPos, row;
-    this.insertionPoints.pop();
+  // deleteLetter () {
+  //   var xPos, yPos, row;
+  //   this.insertionPoints.pop();
 
-    xPos = this._getLastInsertionPoint() - this.letterSpacing;
-    yPos = this.line*this.lineHeight+this.marginTop+this.leading;
+  //   xPos = this._getLastInsertionPoint() - this.letterSpacing;
+  //   yPos = this.line*this.lineHeight+this.marginTop+this.leading;
     
 
-    if (yPos > this.actualState[this.actualState.length - 1][0]) {
-      this.line--;
-      yPos = this.line*this.lineHeight+this.marginTop+this.leading;
+  //   if (yPos > this.actualState[this.actualState.length - 1][0]) {
+  //     this.line--;
+  //     yPos = this.line*this.lineHeight+this.marginTop+this.leading;
       
-      this.insertionPoints.pop();
-      xPos = this._getLastInsertionPoint() - this.letterSpacing;
-    }
+  //     this.insertionPoints.pop();
+  //     xPos = this._getLastInsertionPoint() - this.letterSpacing;
+  //   }
 
     
-    // nested while loops going back from beginning and checking 
+  //   // nested while loops going back from beginning and checking 
 
-    // go through rows and delete all x values between prior and this insertion point
-    let i = this.actualState.length-1
-    do {
+  //   // go through rows and delete all x values between prior and this insertion point
+  //   let i = this.actualState.length-1
+  //   do {
 
-      let idx = this.actualState[i].length - 1;
-      while (idx > 0 && this.actualState[i][idx] >= xPos) {
-        this.removeCell(this.actualState[i][idx], this.actualState[i][0], this.actualState);
-        idx--;
-      }
+  //     let idx = this.actualState[i].length - 1;
+  //     while (idx > 0 && this.actualState[i][idx] >= xPos) {
+  //       this.removeCell(this.actualState[i][idx], this.actualState[i][0], this.actualState);
+  //       idx--;
+  //     }
 
-      i--
-    } while (i >= 0 && this.actualState[i][0] >= yPos)
-  }
+  //     i--
+  //   } while (i >= 0 && this.actualState[i][0] >= yPos)
+  // }
 
   _getLastInsertionPoint () {
     return this.insertionPoints[this.insertionPoints.length - 1];
@@ -667,71 +601,81 @@ class Game {
   /**
    *
    */
+
   addCell (x, y, state) {
-    if (state.length === 0) {
-      state.push([y, x]);
-      return;
-    }
-
-    var k, n, m, tempRow, newState = [], added;
-
-    if (y < state[0][0]) { // Add to Head
-      newState = [[y,x]];
-      for (k = 0; k < state.length; k++) {
-        newState[k+1] = state[k];
-      }
-
-      for (k = 0; k < newState.length; k++) {
-        state[k] = newState[k];
-      }
+    if (!(y in state)) {
+      state[y] = new Set([x]);
 
       return;
-
-    } else if (y > state[state.length - 1][0]) { // Add to Tail
-      state[state.length] = [y, x];
-      return;
-
-    } else { // Add to Middle
-
-      for (n = 0; n < state.length; n++) {
-        if (state[n][0] === y) { // Level Exists
-          tempRow = [];
-          added = false;
-          for (m = 1; m < state[n].length; m++) {
-            if ((!added) && (x < state[n][m])) {
-              tempRow.push(x);
-              added = !added;
-            }
-            tempRow.push(state[n][m]);
-          }
-          tempRow.unshift(y);
-          if (!added) {
-            tempRow.push(x);
-          }
-          state[n] = tempRow;
-          return;
-        }
-
-        if (y < state[n][0]) { // Create Level
-          newState = [];
-          for (k = 0; k < state.length; k++) {
-            if (k === n) {
-              newState[k] = [y,x];
-              newState[k+1] = state[k];
-            } else if (k < n) {
-              newState[k] = state[k];
-            } else if (k > n) {
-              newState[k+1] = state[k];
-            }
-          }
-
-          for (k = 0; k < newState.length; k++) {
-            state[k] = newState[k];
-          }
-          return;
-        }
-      }
-    }
+    } 
+    
+    state[y].add(x);
   }
+  // addCell (x, y, state) {
+  //   if (state.length === 0) {
+  //     state[y] = new Set([x]);
+  //     return;
+  //   }
+
+  //   var k, n, m, tempRow, newState = [], added;
+
+  //   if (y < state[0][0]) { // Add to Head
+  //     newState = [[y,x]];
+  //     for (k = 0; k < state.length; k++) {
+  //       newState[k+1] = state[k];
+  //     }
+
+  //     for (k = 0; k < newState.length; k++) {
+  //       state[k] = newState[k];
+  //     }
+
+  //     return;
+
+  //   } else if (y > state[state.length - 1][0]) { // Add to Tail
+  //     state[state.length] = [y, x];
+  //     return;
+
+  //   } else { // Add to Middle
+
+  //     for (n = 0; n < state.length; n++) {
+  //       if (state[n][0] === y) { // Level Exists
+  //         tempRow = [];
+  //         added = false;
+  //         for (m = 1; m < state[n].length; m++) {
+  //           if ((!added) && (x < state[n][m])) {
+  //             tempRow.push(x);
+  //             added = !added;
+  //           }
+  //           tempRow.push(state[n][m]);
+  //         }
+  //         tempRow.unshift(y);
+  //         if (!added) {
+  //           tempRow.push(x);
+  //         }
+  //         state[n] = tempRow;
+  //         return;
+  //       }
+
+  //       if (y < state[n][0]) { // Create Level
+  //         newState = [];
+  //         for (k = 0; k < state.length; k++) {
+  //           if (k === n) {
+  //             newState[k] = [y,x];
+  //             newState[k+1] = state[k];
+  //           } else if (k < n) {
+  //             newState[k] = state[k];
+  //           } else if (k > n) {
+  //             newState[k+1] = state[k];
+  //           }
+  //         }
+
+  //         for (k = 0; k < newState.length; k++) {
+  //           state[k] = newState[k];
+  //         }
+  //         return;
+  //       }
+  //     }
+  //   }
+  // }
 }
 
