@@ -23,6 +23,8 @@ window.onload = ()=>{
     fontSelector.value = 'Mortal'
     CUR_FONT = fontSelector.value;
     GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
+    GAME.flashInsertionPoint();
+
 
     startButton.addEventListener('click', (event) => {
         GAME.running = !GAME.running;
@@ -54,6 +56,8 @@ window.onload = ()=>{
         } else {
           GAME.cleanUp();
         }
+
+        GAME.flashInsertionPoint();
     });
 
     fontSelector.addEventListener('change', ()=>{

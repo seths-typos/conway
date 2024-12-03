@@ -28,6 +28,7 @@ class Game {
 
     this.running = false;
     this.autoplay = false;
+    this.insPointCounter = 0;
 
     this.curAlpha = 1;
 
@@ -55,6 +56,7 @@ class Game {
     this.colors = {
       dead : baseColor,
       trail : ['#B5ECA2'],
+      ipColor : '#ffffff',
       alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
     };
 
@@ -320,14 +322,38 @@ class Game {
     } else {
       this.context.fillStyle = this.colors.dead;
     }
-
-
-    let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
-    let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
-    this.context.fillRect(this.cellSpace + (this.cellSpace * i) + (this.cellSize * i), this.cellSpace + (this.cellSpace * j) + (this.cellSize * j), this.cellSize, this.cellSize);
+    
+    this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
+    // let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
+    // let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
     // this.context.beginPath();
     // this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
     // this.context.fill();
+  }
+
+  flashInsertionPoint() {
+    if (this.insPointCounter < 40) {
+      this._drawInsertionPoint(true);
+    } else if (this.insPointCounter < 60) {
+      this._drawInsertionPoint(false);
+    } else {
+      this.insPointCounter = 0;
+    }
+
+    this.insPointCounter++;
+
+    if (!this.running) { 
+      requestAnimationFrame(this.flashInsertionPoint.bind(this));
+    }
+  }
+
+  _drawInsertionPoint (on) {
+    let x = this._processXCoord(this._getLastInsertionPoint()),
+    y = this._processYCoord(this._getLastLine() - this.leading/2 + this.cellSpace),
+    width = this.cellSize / 2,
+    height = (this.lineHeight + this.leading-this.cellSpace)*this.cellSize;
+    this.context.fillStyle = on ? this.colors.ipColor : this.colors.dead;
+    this.context.fillRect(x, y, width, height);
   }
 
   /**
@@ -446,7 +472,7 @@ class Game {
     try {
       this.addString(ltr);
       let newPoint = this._getLastInsertionPoint() + ltr.width + this.letterSpacing;
-      this.insertionPoints.push(newPoint)
+      this.insertionPoints.push(newPoint);
     } catch (e) {
       console.log(e);
     }
@@ -513,6 +539,14 @@ class Game {
 
   _getLastLine () {
     return this.line*this.lineHeight+this.marginTop+this.leading;
+  }
+
+  _processXCoord (x) {
+    return this.cellSpace + (this.cellSpace * x) + (this.cellSize * x);
+  }
+
+  _processYCoord (y) {
+    return this.cellSpace + (this.cellSpace * y) + (this.cellSize * y);
   }
 
 }

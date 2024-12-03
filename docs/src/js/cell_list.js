@@ -3,6 +3,7 @@ class CellList {
   constructor () {
     this.cells = {};
     this.highestRow = 0;
+    this.farthestCol = 0
   }
 
   reset () {
@@ -76,6 +77,10 @@ class CellList {
 
     if (y > this.highestRow) {
       this.highestRow = y;
+    }
+
+    if (x > this.farthestCol) {
+      this.farthestCol = x;
     }
     
     this.cells[y].add(x);
