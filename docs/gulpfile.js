@@ -17,6 +17,7 @@ gulp.task('jsBundle', async function(done) {
   return gulp.src([
             'src/js/letters.js',
             'src/js/typer.js',
+            'src/js/cell_list.js',
             'src/js/game.js',
             'src/js/kickoff.js'
             ])

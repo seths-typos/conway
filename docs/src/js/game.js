@@ -35,7 +35,7 @@ class Game {
     this.clear = false;
 
     // Initial state
-    this.initialState = '[{"0":[0,1,3,4]},{"1":[0,1,2,3,4,5,6]},{"2":[1,2,4]},{"3":[0,1,2,3,4]},{"4":[0,1,2,5,6]},{"5":[1,2,5,6]},{"6":[0,1,2,3,4,5,6]},{"7":[0,1,3,4,5]}]';
+    // this.initialState = '[{"0":[0,1,3,4]},{"1":[0,1,2,3,4,5,6]},{"2":[1,2,4]},{"3":[0,1,2,3,4]},{"4":[0,1,2,5,6]},{"5":[1,2,5,6]},{"6":[0,1,2,3,4,5,6]},{"7":[0,1,3,4,5]}]';
     // this.initialState = '';
 
     // Trail state
@@ -68,7 +68,7 @@ class Game {
     this.leading = 4;
 
     // ListLife Variables
-    this.actualState = {};
+    this.actualState = new CellList();
     this.redrawList = [];
     this.topPointer = 1;
     this.middlePointer = 1;
@@ -123,7 +123,7 @@ class Game {
    */
   cleanUp () {
     this.line = 0;
-    this.actualState = {}; // Reset/init algorithm
+    this.actualState.reset(); // Reset/init algorithm
     this.clearWorld();
     this.redrawWorld();
   }
@@ -273,8 +273,8 @@ class Game {
   }
 
   drawCells () {
-    for (let row in this.actualState) {
-      for (let col of this.actualState[row]) {
+    for (let row in this.actualState.cells) {
+      for (let col of this.actualState.cells[row]) {
         this.drawCell(col, row, true);
       }
     }
@@ -370,15 +370,15 @@ class Game {
     
    
   nextGeneration () {
-    var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = {};
+    var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = new CellList();
     this.redrawList = [];
 
 
-    for (const row in this.actualState) {
+    for (const row in this.actualState.cells) {
       this.topPointer = 1;
       this.bottomPointer = 1;
                 
-      for (const col of this.actualState[row]) {
+      for (const col of this.actualState.cells[row]) {
         let x = col;
         let y = parseInt(row);
 
@@ -386,7 +386,7 @@ class Game {
         let deadNeighbours = [[x-1, y-1, 1], [x, y-1, 1], [x+1, y-1, 1], [x-1, y, 1], [x+1, y, 1], [x-1, y+1, 1], [x, y+1, 1], [x+1, y+1, 1]];
 
         // Get number of live neighbours and remove alive neighbours from deadNeighbours
-        let neighbours = this.getNeighboursFromAlive(x, y, deadNeighbours);
+        let neighbours = this.actualState.getNeighboursFromAlive(x, y, deadNeighbours);
 
         // Join dead neighbours to check list
         for (m = 0; m < 8; m++) {
@@ -402,7 +402,7 @@ class Game {
         }
 
         if (!(neighbours === 0 || neighbours === 1 || neighbours > 3)) {
-          this.addCell(x, y, newState);
+          newState.addCell(x, y);
           alive++;
           this.redrawList.push([x, y, 2]); // Keep alive
         } else {
@@ -418,7 +418,7 @@ class Game {
         t1 = parseInt(key[0], 10);
         t2 = parseInt(key[1], 10);
 	
-        this.addCell(t1, t2, newState);
+        newState.addCell(t1, t2);
         alive++;
         this.redrawList.push([t1, t2, 1]);
       }
@@ -427,86 +427,6 @@ class Game {
     this.actualState = newState;
 
     return alive;
-  }
-
-  
-
-  /**
-         *
-         */
-  getNeighboursFromAlive  (x, y, possibleNeighboursList) {
-    var neighbours = 0, k;
-
-    let rowAbove = (y - 1).toString();
-    let rowBelow = (y + 1).toString();
-
-    let testers = [x - 1, x, x + 1];
-    
-    for (let i = 0; i < testers.length; i++) {  
-      // Top
-      if (rowAbove in this.actualState) {   
-        if (this.actualState[rowAbove].has(testers[i])){
-          possibleNeighboursList[i] = undefined;
-          neighbours++;
-        }
-      }
-
-      // Middle (Skipping central cell)
-      if (i === 0) {
-        if (this.actualState[y].has(testers[i])){
-          possibleNeighboursList[3] = undefined;
-          neighbours++;
-        } 
-      }
-
-      if (i === 0) {
-        if (this.actualState[y].has(testers[i])){
-          possibleNeighboursList[4] = undefined;
-          neighbours++;
-        } 
-      }
-
-      if (rowBelow in this.actualState) {   
-        if (this.actualState[rowBelow].has(testers[i])){
-          possibleNeighboursList[i+5] = undefined;
-          neighbours++;
-        }
-      }
-    }
-
-    return neighbours;
-  }
-
-
-  /**
-   *
-   */
-  isAlive (x, y) {
-    return this.actualState[y] && this.actualState[y].has(x);
-  }
-
-
-  /**
-   *
-   */
-  removeCell (x, y, state) {
-    var i, j;
-
-    for (i = 0; i < state.length; i++) {
-      if (state[i][0] === y) {
-
-        if (state[i].length === 2) { // Remove all Row
-          state.splice(i, 1);
-        } else { // Remove Element
-          for (j = 1; j < state[i].length; j++) {
-            if (state[i][j] === x) {
-              state[i].splice(j, 1);
-            }
-          }
-        }
-
-      }
-    }
   }
 
   /**
@@ -555,7 +475,7 @@ class Game {
 
           y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight+(this.lineHeight-state.length);
 
-          this.addCell(x, y, this.actualState);
+          this.actualState.addCell(x, y);
         }
       }
     }
@@ -598,84 +518,5 @@ class Game {
     return this.insertionPoints[this.insertionPoints.length - 1];
   }
 
-  /**
-   *
-   */
-
-  addCell (x, y, state) {
-    if (!(y in state)) {
-      state[y] = new Set([x]);
-
-      return;
-    } 
-    
-    state[y].add(x);
-  }
-  // addCell (x, y, state) {
-  //   if (state.length === 0) {
-  //     state[y] = new Set([x]);
-  //     return;
-  //   }
-
-  //   var k, n, m, tempRow, newState = [], added;
-
-  //   if (y < state[0][0]) { // Add to Head
-  //     newState = [[y,x]];
-  //     for (k = 0; k < state.length; k++) {
-  //       newState[k+1] = state[k];
-  //     }
-
-  //     for (k = 0; k < newState.length; k++) {
-  //       state[k] = newState[k];
-  //     }
-
-  //     return;
-
-  //   } else if (y > state[state.length - 1][0]) { // Add to Tail
-  //     state[state.length] = [y, x];
-  //     return;
-
-  //   } else { // Add to Middle
-
-  //     for (n = 0; n < state.length; n++) {
-  //       if (state[n][0] === y) { // Level Exists
-  //         tempRow = [];
-  //         added = false;
-  //         for (m = 1; m < state[n].length; m++) {
-  //           if ((!added) && (x < state[n][m])) {
-  //             tempRow.push(x);
-  //             added = !added;
-  //           }
-  //           tempRow.push(state[n][m]);
-  //         }
-  //         tempRow.unshift(y);
-  //         if (!added) {
-  //           tempRow.push(x);
-  //         }
-  //         state[n] = tempRow;
-  //         return;
-  //       }
-
-  //       if (y < state[n][0]) { // Create Level
-  //         newState = [];
-  //         for (k = 0; k < state.length; k++) {
-  //           if (k === n) {
-  //             newState[k] = [y,x];
-  //             newState[k+1] = state[k];
-  //           } else if (k < n) {
-  //             newState[k] = state[k];
-  //           } else if (k > n) {
-  //             newState[k+1] = state[k];
-  //           }
-  //         }
-
-  //         for (k = 0; k < newState.length; k++) {
-  //           state[k] = newState[k];
-  //         }
-  //         return;
-  //       }
-  //     }
-  //   }
-  // }
 }
 
