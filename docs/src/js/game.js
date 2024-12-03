@@ -48,7 +48,7 @@ class Game {
     this.zoom = {
       columns : 100,
       rows : 100,
-      cellSize : 1
+      cellSize : 4
     };
 
     // Cell colors
@@ -481,41 +481,38 @@ class Game {
     }
   }
 
-  // deleteLetter () {
-  //   var xPos, yPos, row;
-  //   this.insertionPoints.pop();
-
-  //   xPos = this._getLastInsertionPoint() - this.letterSpacing;
-  //   yPos = this.line*this.lineHeight+this.marginTop+this.leading;
+  deleteLetter () {
+    var row;
     
-
-  //   if (yPos > this.actualState[this.actualState.length - 1][0]) {
-  //     this.line--;
-  //     yPos = this.line*this.lineHeight+this.marginTop+this.leading;
+    var xymax = this._trimInsertionPoints();
+    
+    if (xymax[2] == this.marginLeft) {
+      this.line--;
       
-  //     this.insertionPoints.pop();
-  //     xPos = this._getLastInsertionPoint() - this.letterSpacing;
-  //   }
+      xymax = this._trimInsertionPoints();
+    }
 
-    
-  //   // nested while loops going back from beginning and checking 
+    for (let i = xymax[1]; i <= this.actualState.highestRow; i++) {
+      for (let j = xymax[0]; j <= xymax[2]; j++) {
+        if (i in this.actualState.cells && this.actualState.cells[i].has(j)) {
+          this.actualState.removeCell(i,j);
+        }
+      }
+    }
+  }
 
-  //   // go through rows and delete all x values between prior and this insertion point
-  //   let i = this.actualState.length-1
-  //   do {
+  _trimInsertionPoints () {
+    let xMax = this.insertionPoints.pop();
 
-  //     let idx = this.actualState[i].length - 1;
-  //     while (idx > 0 && this.actualState[i][idx] >= xPos) {
-  //       this.removeCell(this.actualState[i][idx], this.actualState[i][0], this.actualState);
-  //       idx--;
-  //     }
-
-  //     i--
-  //   } while (i >= 0 && this.actualState[i][0] >= yPos)
-  // }
+    return [this._getLastInsertionPoint() - this.letterSpacing, this._getLastLine(), xMax];
+  }
 
   _getLastInsertionPoint () {
     return this.insertionPoints[this.insertionPoints.length - 1];
+  }
+
+  _getLastLine () {
+    return this.line*this.lineHeight+this.marginTop+this.leading;
   }
 
 }

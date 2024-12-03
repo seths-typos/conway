@@ -2,6 +2,7 @@ class CellList {
 
   constructor () {
     this.cells = {};
+    this.highestRow = 0;
   }
 
   reset () {
@@ -72,6 +73,10 @@ class CellList {
 
       return;
     } 
+
+    if (y > this.highestRow) {
+      this.highestRow = y;
+    }
     
     this.cells[y].add(x);
   }
@@ -80,22 +85,10 @@ class CellList {
    *
    */
   removeCell (x, y) {
-    var i, j;
-
-    for (i = 0; i < this.cells.length; i++) {
-      if (this.cells[i][0] === y) {
-
-        if (this.cells[i].length === 2) { // Remove all Row
-          this.cells.splice(i, 1);
-        } else { // Remove Element
-          for (j = 1; j < this.cells[i].length; j++) {
-            if (this.cells[i][j] === x) {
-              this.cells[i].splice(j, 1);
-            }
-          }
-        }
-
-      }
+    try {
+      this.cells[x].delete(y);
+    } catch (e) {
+      console.log(e);
     }
   }
 }
