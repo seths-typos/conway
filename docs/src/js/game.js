@@ -414,6 +414,7 @@ class Game {
         // Get number of live neighbours and remove alive neighbours from deadNeighbours
         let neighbours = this.actualState.getNeighboursFromAlive(x, y, deadNeighbours);
 
+        console.log("before", allDeadNeighbours);
         // Join dead neighbours to check list
         for (m = 0; m < 8; m++) {
           if (deadNeighbours[m] !== undefined) {
@@ -426,6 +427,7 @@ class Game {
             }
           }
         }
+        console.log("after", allDeadNeighbours);
 
         if (!(neighbours === 0 || neighbours === 1 || neighbours > 3)) {
           newState.addCell(x, y);

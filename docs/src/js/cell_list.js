@@ -13,7 +13,7 @@ class CellList {
   /**
    *
    */
-  getNeighboursFromAlive  (x, y, possibleNeighboursList) {
+  getNeighboursFromAlive  (x, y) {
     var neighbours = 0, k;
 
     let rowAbove = (y - 1).toString();
@@ -25,29 +25,19 @@ class CellList {
       // Top
       if (rowAbove in this.cells) {   
         if (this.cells[rowAbove].has(testers[i])){
-          possibleNeighboursList[i] = undefined;
           neighbours++;
         }
       }
 
       // Middle (Skipping central cell)
-      if (i === 0) {
+      if (i === 0 || i === 2) {
         if (this.cells[y].has(testers[i])){
-          possibleNeighboursList[3] = undefined;
-          neighbours++;
-        } 
-      }
-
-      if (i === 0) {
-        if (this.cells[y].has(testers[i])){
-          possibleNeighboursList[4] = undefined;
           neighbours++;
         } 
       }
 
       if (rowBelow in this.cells) {   
         if (this.cells[rowBelow].has(testers[i])){
-          possibleNeighboursList[i+5] = undefined;
           neighbours++;
         }
       }
@@ -96,4 +86,5 @@ class CellList {
       console.log(e);
     }
   }
+
 }

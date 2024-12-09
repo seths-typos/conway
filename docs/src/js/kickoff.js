@@ -56,7 +56,7 @@ window.onload = ()=>{
         } else {
           GAME.cleanUp();
         }
-
+        document.activeElement = null;
         GAME.flashInsertionPoint();
     });
 
