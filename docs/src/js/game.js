@@ -72,15 +72,11 @@ class Game {
     // ListLife Variables
     this.actualState = new CellList();
     this.redrawList = [];
-    this.topPointer = 1;
-    this.middlePointer = 1;
-    this.bottomPointer = 1;
 
     // Canvas Variables
     this.context = null;
     this.width = null;
     this.height = null;
-    this.age = null;
     this.cellSize = null;
     this.cellSpace = null;
 
@@ -149,8 +145,8 @@ class Game {
     
     // Algorithm run
     if (this.count == this.waitTime || !this.running) {
-      var liveCellNumber = this.nextGeneration();
-      this.drawRedraws();
+      var liveCellNumber = this.actualState.nextGeneration();
+      this.redrawWorld();
 
       this.count = 0;
 
@@ -241,11 +237,10 @@ class Game {
     this.insertionPoints = [this.marginLeft]
 
     // Init ages (Canvas reference)
-    this.age = [];
     for (i = 0; i < this.columns; i++) {
-      this.age[i] = [];
+      this.actualState.age[i] = [];
       for (j = 0; j < this.rows; j++) {
-        this.age[i][j] = 0; // Dead
+        this.actualState.age[i][j] = 0; // Dead
       }
     }
   }
@@ -317,7 +312,7 @@ class Game {
   drawCell (i, j, alive) {   
 
     if (alive) {
-      this.context.fillStyle = this.colors.alive[this.age[i][j] % this.colors.alive.length];
+      this.context.fillStyle = this.colors.alive[this.actualState.age[i][j] % this.colors.alive.length];
 
     } else {
       this.context.fillStyle = this.colors.dead;
@@ -356,106 +351,11 @@ class Game {
     this.context.fillRect(x, y, width, height);
   }
 
-  /**
-   * keepCellAlive
-   */
-  keepCellAlive (i, j) {
-    if (i >= 0 && i < this.columns && j >=0 && j < this.rows) {
-      this.age[i][j]++;
-      this.drawCell(i, j, true);
-    }
-  }
-
-
-  /**
-   * changeCelltoAlive
-   */
-  changeCelltoAlive (i, j) {
-    if (i >= 0 && i < this.columns && j >=0 && j < this.rows) {
-      this.age[i][j] = 1;
-      this.drawCell(i, j, true);
-    }
-  }
-
-
-  /**
-   * changeCelltoDead
-   */
-  changeCelltoDead (i, j) {
-    if (i >= 0 && i < this.columns && j >=0 && j < this.rows) {
-      this.age[i][j] = -this.age[i][j]; // Keep trail
-      this.drawCell(i, j, false);
-    }
-  }
-
 
   /** ****************************************************************************************************************************
    *
    */
 
-    
-   
-  nextGeneration () {
-    var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = new CellList();
-    this.redrawList = [];
-
-
-    for (const row in this.actualState.cells) {
-      this.topPointer = 1;
-      this.bottomPointer = 1;
-                
-      for (const col of this.actualState.cells[row]) {
-        let x = col;
-        let y = parseInt(row);
-
-        // Possible dead neighbours
-        let deadNeighbours = [[x-1, y-1, 1], [x, y-1, 1], [x+1, y-1, 1], [x-1, y, 1], [x+1, y, 1], [x-1, y+1, 1], [x, y+1, 1], [x+1, y+1, 1]];
-
-        // Get number of live neighbours and remove alive neighbours from deadNeighbours
-        let neighbours = this.actualState.getNeighboursFromAlive(x, y, deadNeighbours);
-
-        console.log("before", allDeadNeighbours);
-        // Join dead neighbours to check list
-        for (m = 0; m < 8; m++) {
-          if (deadNeighbours[m] !== undefined) {
-            key = deadNeighbours[m][0] + ',' + deadNeighbours[m][1]; // Create hashtable key
-            
-            if (allDeadNeighbours[key] === undefined) {
-              allDeadNeighbours[key] = 1;
-            } else {
-              allDeadNeighbours[key]++;
-            }
-          }
-        }
-        console.log("after", allDeadNeighbours);
-
-        if (!(neighbours === 0 || neighbours === 1 || neighbours > 3)) {
-          newState.addCell(x, y);
-          alive++;
-          this.redrawList.push([x, y, 2]); // Keep alive
-        } else {
-          this.redrawList.push([x, y, 0]); // Kill cell
-        }
-      }
-    }
-
-    // Process dead neighbours
-    for (key in allDeadNeighbours) {
-      if (allDeadNeighbours[key] === 3) { // Add new Cell
-        key = key.split(',');
-        t1 = parseInt(key[0], 10);
-        t2 = parseInt(key[1], 10);
-	
-        newState.addCell(t1, t2);
-        alive++;
-        this.redrawList.push([t1, t2, 1]);
-      }
-    }
-
-    this.actualState = newState;
-
-    return alive;
-  }
 
   /**
    * 
