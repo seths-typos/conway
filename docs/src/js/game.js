@@ -29,6 +29,7 @@ class Game {
     this.running = false;
     this.autoplay = false;
     this.insPointCounter = 0;
+    this.currentWord = [];
 
     this.curAlpha = 1;
 
@@ -343,7 +344,7 @@ class Game {
 
   _drawInsertionPoint (on) {
     let x = this._processXCoord(this._getLastInsertionPoint()),
-    y = this._processYCoord(this._getLastLine() - this.leading/2 + this.cellSpace),
+    y = this._processYCoord(this._getLastLine() + this.cellSpace),
     width = this.cellSize / 2,
     height = (this.lineHeight + this.leading-this.cellSpace)*this.cellSize;
     this.context.fillStyle = on ? this.colors.ipColor : this.colors.dead;
@@ -362,18 +363,33 @@ class Game {
   addSpace () {
     let newPoint = this._getLastInsertionPoint() + 7;
     this.insertionPoints.push(newPoint)
+    this.currentWord = [];
   }
 
   carriageReturn () {
     this.insertionPoints.push(this.marginLeft)
     this.line += 1;
+    this.currentWord = [];
   }
 
   typeLetter (ltr) {
     try {
+
+      if (this.willBumpToNewLine(ltr)) {
+        for (let i = 0; i < this.currentWord.length; i++) {
+          this.deleteLetter()  
+        } 
+
+        this.line = this.line + 1;
+        this.insertionPoints.push(this.marginLeft);
+
+        for (let i = 0; i < this.currentWord.length; i++) {
+          this.addString(this.currentWord[i]);
+        }
+      } 
+
       this.addString(ltr);
-      let newPoint = this._getLastInsertionPoint() + ltr.width + this.letterSpacing;
-      this.insertionPoints.push(newPoint);
+      this.currentWord.push(ltr);
     } catch (e) {
       console.log(e);
     }
@@ -384,28 +400,25 @@ class Game {
    */
 
   addString (str) {
-    var state, i, j, k, x, y, newLine;
+    var code, i, j, k, x, y;
 
-    state = JSON.parse(str.code);
+    code = JSON.parse(str.code);
 
-    if (this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft) {
-      newLine = true;
-      this.line = this.line + 1;
-      this.insertionPoints.push(this.marginLeft);
-    } 
+    for (i = 0; i < code.length; i++) {
+      for (k in code[i]) {
+        for (j = 0 ; j < code[i][k].length ; j++) {
+          x = code[i][k][j] + this._getLastInsertionPoint();
 
-
-    for (i = 0; i < state.length; i++) {
-      for (k in state[i]) {
-        for (j = 0 ; j < state[i][k].length ; j++) {
-          x = state[i][k][j] + this._getLastInsertionPoint();
-
-          y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight+(this.lineHeight-state.length);
+          y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight+(this.lineHeight-code.length);
 
           this.actualState.addCell(x, y);
         }
       }
     }
+
+
+    let newPoint = this._getLastInsertionPoint() + str.width + this.letterSpacing;
+    this.insertionPoints.push(newPoint);
   }
 
   deleteLetter () {
@@ -426,6 +439,10 @@ class Game {
         }
       }
     }
+  }
+
+  willBumpToNewLine (str) {
+    return this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft
   }
 
   _trimInsertionPoints () {
