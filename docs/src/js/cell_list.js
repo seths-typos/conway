@@ -1,10 +1,10 @@
 class CellList {
 
-  constructor () {
+  constructor (config) {
     this.cells = {};
     this.highestRow = 0;
-    this.farthestCol = 0
-    this.age = []
+    this.farthestCol = 0;
+    this.age = {};
   }
 
   reset () {
@@ -13,53 +13,48 @@ class CellList {
 
   nextGeneration () {
     var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = new CellList();
-    this.redrawList = [];
-
 
     for (const row in this.cells) {
       for (const col of this.cells[row]) {
         let x = col;
         let y = parseInt(row);
 
-        // Possible dead neighbours
-        let deadNeighbours = [[x-1, y-1, 1], [x, y-1, 1], [x+1, y-1, 1], [x-1, y, 1], [x+1, y, 1], [x-1, y+1, 1], [x, y+1, 1], [x+1, y+1, 1]];
-
         // Get number of live neighbours and remove alive neighbours from deadNeighbours
-        let neighbours = this.getNeighboursFromAlive(x, y, deadNeighbours);
+        let neighbours = this.getNeighboursFromAlive(x, y);
 
         // Join dead neighbours to check list
-        for (m = 0; m < 8; m++) {
-          if (deadNeighbours[m] !== undefined) {
-            key = deadNeighbours[m][0] + ',' + deadNeighbours[m][1]; // Create hashtable key
-            
-            if (allDeadNeighbours[key] === undefined) {
-              allDeadNeighbours[key] = 1;
-            } else {
-              allDeadNeighbours[key]++;
-            }
+        for (let i in neighbours.dead) {
+          key = CellList.makeKey(neighbours.dead[i][0],neighbours.dead[i][1]); // Create hashtable key
+          
+          if (allDeadNeighbours[key] === undefined) {
+            allDeadNeighbours[key] = 1;
+          } else {
+            allDeadNeighbours[key]++;
           }
         }
 
-        if (!(neighbours === 0 || neighbours === 1 || neighbours > 3)) {
+        if (!(neighbours.living < 2 || neighbours.living > 3)) {
           newState.addCell(x, y);
           alive++;
-          this.keepCellAlive(x,y); // Keep alive
+          this._keepCellAlive(x,y); // Keep alive
         } else {
-          this.changeCelltoDead(x,y); // Kill cell
+          this._changeCelltoDead(x,y); // Kill cell
         }
       }
     }
 
     // Process dead neighbours
-    for (key in allDeadNeighbours) {
-      if (allDeadNeighbours[key] === 3) { // Add new Cell
-        key = key.split(',');
-        t1 = parseInt(key[0], 10);
-        t2 = parseInt(key[1], 10);
-  
-        newState.addCell(t1, t2);
-        alive++;
-        this.changeCelltoAlive(t1, t2);
+    for (let cell in allDeadNeighbours) {
+      if (allDeadNeighbours[cell] === 3) { // Add new Cell
+        let coords = cell.split(',');
+        let x = parseInt(coords[0], 10),
+            y = parseInt(coords[1], 10);
+        
+        if (x > -1) {
+          newState.addCell(x, y);
+          alive++;
+          this._changeCelltoAlive(x, y);
+        }
       }
     }
 
@@ -71,8 +66,13 @@ class CellList {
   /**
    *
    */
-  getNeighboursFromAlive  (x, y, possibleNeighboursList) {
-    var neighbours = 0, k;
+  getNeighboursFromAlive  (x, y) {
+    var k;
+
+    let neighbours = {
+      living: 0,
+      dead: []
+    }
 
     let rowAbove = (y - 1).toString();
     let rowBelow = (y + 1).toString();
@@ -81,33 +81,33 @@ class CellList {
     
     for (let i = 0; i < testers.length; i++) {  
       // Top
-      if (rowAbove in this.cells) {   
-        if (this.cells[rowAbove].has(testers[i])){
-          possibleNeighboursList[i] = undefined;
-          neighbours++;
-        }
+      if (rowAbove in this.cells && this.cells[rowAbove].has(testers[i])){
+        neighbours.living++
+      } else {
+        neighbours.dead.push([testers[i], parseInt(rowAbove, 10)]);
       }
 
       // Middle (Skipping central cell)
       if (i === 0) {
         if (this.cells[y].has(testers[i])){
-          possibleNeighboursList[3] = undefined;
-          neighbours++;
-        } 
+          neighbours.living++
+        } else {
+          neighbours.dead.push([testers[i],parseInt(y, 10)]);
+        }
       }
 
       if (i === 2) {
         if (this.cells[y].has(testers[i])){
-          possibleNeighboursList[4] = undefined;
-          neighbours++;
-        } 
+          neighbours.living++
+        } else {
+          neighbours.dead.push([testers[i],parseInt(y, 10)]);
+        }
       }
 
-      if (rowBelow in this.cells) {   
-        if (this.cells[rowBelow].has(testers[i])){
-          possibleNeighboursList[i+5] = undefined;
-          neighbours++;
-        }
+      if (rowBelow in this.cells && this.cells[rowBelow].has(testers[i])){
+        neighbours.living++
+      } else {
+        neighbours.dead.push([testers[i], parseInt(rowBelow, 10)]);
       }
     }
 
@@ -157,32 +157,39 @@ class CellList {
 
 
   /**
-   * keepCellAlive
+   * _keepCellAlive
    */
-  keepCellAlive (i, j) {
-    if (!this.age[i][j]) {
+  _keepCellAlive (i, j) {
+    if (!!this.age[i] && !!this.age[i][j]) {
       this.age[i][j]++;
     }
   }
 
 
   /**
-   * changeCelltoAlive
+   * _changeCelltoAlive
    */
-  changeCelltoAlive (i, j) {
-    if (!this.age[i][j]) {
+  _changeCelltoAlive (i, j) {
+    if (!!this.age[i] && !!this.age[i][j]) {
       this.age[i][j] = 1;
     }
   }
 
 
   /**
-   * changeCelltoDead
+   * _changeCelltoDead
    */
-  changeCelltoDead (i, j) {
-    if (!this.age[i][j]) {
+  _changeCelltoDead (i, j) {
+    if (!!this.age[i] && !!this.age[i][j]) {
       this.age[i][j] = -this.age[i][j]; // Keep trail
     }
   }
 
+  _isWithinBounds(x,y) {
+    return x > -1 && x < this.maxX + this.outerBuffer && y > -1 && y < this.maxX + this.outerBuffer
+  }
+
+  static makeKey (x, y) {
+    return x + ',' + y; // Create hashtable key
+  }
 }

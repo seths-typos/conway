@@ -49,7 +49,7 @@ class Game {
     this.zoom = {
       columns : 100,
       rows : 100,
-      cellSize : 4
+      cellSize : 2
     };
 
     // Cell colors
@@ -89,6 +89,7 @@ class Game {
       this.initCanvas();     // Init canvas GUI
       this.setGridSize();
       // this.addString(this.initialState);
+
       this.prepare();
     } catch (e) {
       console.log("Error: "+e);
@@ -272,19 +273,13 @@ class Game {
   drawCells () {
     for (let row in this.actualState.cells) {
       for (let col of this.actualState.cells[row]) {
-        this.drawCell(col, row, true);
+        try {
+          this.drawCell(col, row, true);
+        } catch (e) {
+          console.log(row, col)
+        }
       }
     }
-
-    // for (i = 0 ; i < this.columns; i++) {
-    //   for (j = 0 ; j < this.rows; j++) {
-    //     if (this.isAlive(i, j)) {
-    //       this.drawCell(i, j, true);
-    //     } else {
-    //       this.drawCell(i, j, false);
-    //     }
-    //   }
-    // }
   }
 
 
