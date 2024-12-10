@@ -70,7 +70,7 @@ class Game {
     this.leading = 4;
 
     // ListLife Variables
-    this.actualState = new CellList();
+    this.actualState = null;
     this.redrawList = [];
 
     // Canvas Variables
@@ -89,6 +89,11 @@ class Game {
       this.initCanvas();     // Init canvas GUI
       this.setGridSize();
       // this.addString(this.initialState);
+
+      this.actualState = new CellList({
+        rows: this.rows,
+        columns: this.columns
+      });
 
       this.prepare();
     } catch (e) {
@@ -147,7 +152,6 @@ class Game {
     // Algorithm run
     if (this.count == this.waitTime || !this.running) {
       var liveCellNumber = this.actualState.nextGeneration();
-      this.redrawWorld();
 
       this.count = 0;
 
@@ -163,9 +167,11 @@ class Game {
       //   this.firstRun = false;
       // }
     } else {
-      this.redrawWorld();
       this.count += 1;
     }
+
+    this.redrawWorld();
+
 
     // Flow Control
     if (this.running) { 
@@ -224,8 +230,6 @@ class Game {
 
     this.cellSize = this.zoom.cellSize;
     this.cellSpace = 1;
-
-    this.clearWorld();
   }
 
 
@@ -238,12 +242,7 @@ class Game {
     this.insertionPoints = [this.marginLeft]
 
     // Init ages (Canvas reference)
-    for (i = 0; i < this.columns; i++) {
-      this.actualState.age[i] = [];
-      for (j = 0; j < this.rows; j++) {
-        this.actualState.age[i][j] = 0; // Dead
-      }
-    }
+    this.actualState.clearAges();
   }
 
   redrawWorld () {
@@ -272,13 +271,18 @@ class Game {
 
   drawCells () {
     for (let row in this.actualState.cells) {
-      for (let col of this.actualState.cells[row]) {
-        try {
-          this.drawCell(col, row, true);
-        } catch (e) {
-          console.log(row, col)
+      if (row < this.rows) {
+        for (let col of this.actualState.cells[row]) {
+          if (col < this.columns) {
+            try {
+              this.drawCell(col, row, true);
+            } catch (e) {
+              console.log(e, col, row, this.columns, this.rows, this.actualState.age[col])
+              this.running = false;
+            }
+          }
         }
-      }
+      } 
     }
   }
 

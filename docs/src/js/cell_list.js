@@ -5,14 +5,27 @@ class CellList {
     this.highestRow = 0;
     this.farthestCol = 0;
     this.age = {};
+    this.rows = config.rows || 1000;
+    this.columns = config.columns || 1000;
+
+    this.clearAges();
   }
 
   reset () {
     this.cells = {};
   }
 
+  clearAges () {
+    for (let i = 0; i < this.columns; i++) {
+      this.age[i] = [];
+      for (let j = 0; j<this.rows; j++) {
+        this.age[i][j]= 0;
+      }
+    }
+  }
+
   nextGeneration () {
-    var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = new CellList();
+    var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = new CellList({rows: this.rows, columns: this.columns});
 
     for (const row in this.cells) {
       for (const col of this.cells[row]) {
@@ -160,7 +173,7 @@ class CellList {
    * _keepCellAlive
    */
   _keepCellAlive (i, j) {
-    if (!!this.age[i] && !!this.age[i][j]) {
+    if (this._isWithinBounds(i,j)) {
       this.age[i][j]++;
     }
   }
@@ -170,7 +183,7 @@ class CellList {
    * _changeCelltoAlive
    */
   _changeCelltoAlive (i, j) {
-    if (!!this.age[i] && !!this.age[i][j]) {
+    if (this._isWithinBounds(i,j)) {
       this.age[i][j] = 1;
     }
   }
@@ -180,13 +193,13 @@ class CellList {
    * _changeCelltoDead
    */
   _changeCelltoDead (i, j) {
-    if (!!this.age[i] && !!this.age[i][j]) {
+    if (this._isWithinBounds(i,j)) {
       this.age[i][j] = -this.age[i][j]; // Keep trail
     }
   }
 
   _isWithinBounds(x,y) {
-    return x > -1 && x < this.maxX + this.outerBuffer && y > -1 && y < this.maxX + this.outerBuffer
+    return x > -1 && x < this.columns && y > -1 && y < this.columns
   }
 
   static makeKey (x, y) {
