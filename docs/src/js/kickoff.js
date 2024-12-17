@@ -10,6 +10,7 @@ window.onload = ()=>{
     let stepButton = document.getElementById("buttonStep");
     let clearButton = document.getElementById("buttonClear");
     let fontSelector = document.getElementById("fontSelector");
+    let sizeSelector = document.getElementById("sizeSelector");
     let textField = document.getElementById("textField");
     let typeButton = document.getElementById("typeButton");
 
@@ -18,6 +19,17 @@ window.onload = ()=>{
         opt.value = font;
         opt.innerHTML = font;
         fontSelector.appendChild(opt);
+    }
+
+    for (size in GAME.zoom) {
+        if (size == "current") {
+            continue;
+        }
+
+        let opt = document.createElement('option');
+        opt.value = size;
+        opt.innerHTML = size;
+        sizeSelector.appendChild(opt);
     }
 
     fontSelector.value = 'Mortal'
@@ -63,6 +75,11 @@ window.onload = ()=>{
     fontSelector.addEventListener('change', ()=>{
         CUR_FONT = fontSelector.value;
         GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
+    })
+
+    sizeSelector.addEventListener('change', ()=>{
+        GAME.zoom.current = sizeSelector.value;
+        GAME.init();
     })
 
     typeButton.addEventListener('click', (event) => {

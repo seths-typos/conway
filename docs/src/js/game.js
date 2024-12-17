@@ -45,16 +45,33 @@ class Game {
 
     // Zoom level
     this.zoom = {
-      columns : 100,
-      rows : 100,
-      cellSize : 3,
-      cellSpace: 3
+      current: "xs",
+      xs:{
+        cellSize : 1,
+        cellSpace: 1
+      },
+      s:{
+        cellSize : 2,
+        cellSpace: 1
+      },
+      m:{
+        cellSize : 3,
+        cellSpace: 1
+      },
+      l:{
+        cellSize : 4,
+        cellSpace: 2
+      },
+      xl:{
+        cellSize : 5,
+        cellSpace: 3
+      }
     };
 
     // Cell colors
     this.colors = {
       dead : baseColor,
-      trail : ['#B5ECA2'],
+      trail : ['#EE82EE', '#FF0000', '#FF7F00', '#FFFF00', '#008000 ', '#0000FF', '#4B0082'],
       ipColor : '#ffffff',
       alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
     };
@@ -77,15 +94,14 @@ class Game {
     this.height = null;
     this.cellSize = null;
     this.cellSpace = null;
-
-    this.rows = this.zoom.rows;
-    this.columns = this.zoom.columns;
+    this.rows = null;
+    this.columns = null;
   }
 
   init () {
     try {
+      this.setMetrics();
       this.initCanvas();     // Init canvas GUI
-      this.setGridSize();
 
       this.actualState = new CellList({
         rows: this.rows,
@@ -106,12 +122,15 @@ class Game {
   }
 
 
-  setGridSize () {
-    this.columns = Math.round(window.innerWidth / (this.zoom.cellSize + this.cellSpace));
+  setMetrics () {
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
+    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
+
+    this.columns = Math.round(window.innerWidth / (this.cellSize + this.cellSpace));
 
     let offset = document.getElementById("controls").getBoundingClientRect();
 
-    this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.zoom.cellSize + this.cellSpace));
+    this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.cellSize + this.cellSpace));
 
     this.marginLeft = Math.round(this.rows/7);
   }
@@ -183,9 +202,6 @@ class Game {
   initCanvas () {
     this.canvas = document.getElementById('canvas');
     this.context = this.canvas.getContext('2d');
-
-    this.cellSize = this.zoom.cellSize;
-    this.cellSpace = this.zoom.cellSpace;
   }
 
 
@@ -212,10 +228,10 @@ class Game {
    */
   drawWorld () {
     // Dynamic canvas size
-    this.width = this.width + (this.cellSpace * this.columns) + (this.cellSize * this.columns);
+    this.width = (this.cellSpace * this.columns) + (this.cellSize * this.columns);
     this.canvas.setAttribute('width', this.width);
 
-    this.height = this.height + (this.cellSpace * this.rows) + (this.cellSize * this.rows);
+    this.height = (this.cellSpace * this.rows) + (this.cellSize * this.rows);
     this.canvas.setAttribute('height', this.height);
 
     // Fill background
@@ -247,7 +263,7 @@ class Game {
    * setNoGridOn
    */
   setNoGridOn () {
-    this.cellSize = this.zoom.cellSize + 1;
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"] + this.zoom[this.zoom.current]["cellSpace"];
     this.cellSpace = 0;
   }
 
@@ -256,8 +272,8 @@ class Game {
    * setNoGridOff
    */
   setNoGridOff () {
-    this.cellSize = this.zoom.cellSize;
-    this.cellSpace = 1;
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
+    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
   }
 
 
@@ -265,12 +281,12 @@ class Game {
    * drawCell
    */
   drawCell (i, j, alive) {   
-
     if (alive) {
       this.context.fillStyle = this.colors.alive[this.actualState.age[i][j] % this.colors.alive.length];
-
+    } else if (this.trail && this.actualState.age[i][j] < 0) {
+      this.context.fillStyle = this.colors.schemes[this.colors.current].trail[(this.actualState.age[i][j] * -1) % this.colors.schemes[this.colors.current].trail.length];
     } else {
-      this.context.fillStyle = this.colors.dead;
+      this.context.fillStyle = this.colors.schemes[this.colors.current].dead;
     }
     
     // this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
