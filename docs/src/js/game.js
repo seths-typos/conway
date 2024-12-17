@@ -18,9 +18,6 @@ class Game {
     // Variables
     this.waitTime = 2;
     this.waitCap = 1;
-    this.alphaCap = 3;
-    // let waitSteps = 7;
-    // this.waitStep = Math.round((this.waitTime - this.waitCap)/waitSteps);
     this.waitRate = 1;
     this.count = 0
     this.alphaStep = 1 / ((this.waitTime - this.waitCap) / this.waitStep);
@@ -50,7 +47,8 @@ class Game {
     this.zoom = {
       columns : 100,
       rows : 100,
-      cellSize : 2
+      cellSize : 3,
+      cellSpace: 3
     };
 
     // Cell colors
@@ -72,7 +70,6 @@ class Game {
 
     // ListLife Variables
     this.actualState = null;
-    this.redrawList = [];
 
     // Canvas Variables
     this.context = null;
@@ -89,12 +86,13 @@ class Game {
     try {
       this.initCanvas();     // Init canvas GUI
       this.setGridSize();
-      // this.addString(this.initialState);
 
       this.actualState = new CellList({
         rows: this.rows,
         columns: this.columns
       });
+
+      // this.setNoGridOn();
 
       this.prepare();
     } catch (e) {
@@ -148,7 +146,6 @@ class Game {
   nextStep () {
     this.context.clearRect(0,0,this.width, this.height)
     
-    // this._updateAlpha();
     
     // Algorithm run
     if (this.count == this.waitTime || !this.running) {
@@ -156,17 +153,9 @@ class Game {
 
       this.count = 0;
 
-      // if (this.waitTime * this.waitRate > this.waitCap) {
-      //   this.waitTime = Math.round(this.waitTime * this.waitRate);
-      //   this.waitRate *= this.waitRate;
-      //   this.curAlpha = this.context.globalAlpha;
-      // } else {
-      //   this.waitTime = this.waitCap;
-      // }
-
-      // if (this.firstRun) {
-      //   this.firstRun = false;
-      // }
+      if (this.firstRun) {
+        this.firstRun = false;
+      }
     } else {
       this.count += 1;
     }
@@ -184,40 +173,6 @@ class Game {
     }
   }
 
-  drawRedraws() {
-    var i, x, y;
-    
-    for (i = 0; i < this.redrawList.length; i++) {
-      x = this.redrawList[i][0];
-      y = this.redrawList[i][1];
-
-      if (this.redrawList[i][2] === 1) {
-        this.changeCelltoAlive(x, y);
-      } else if (this.redrawList[i][2] === 2) {
-        this.keepCellAlive(x, y);
-      } else {
-        this.changeCelltoDead(x, y);
-      }
-    }
-  }
-
-  _updateAlpha () {
-    if (this.firstRun) {
-      this.context.globalAlpha = (this.waitTime - this.count) / this.waitTime;
-    } else if (this.waitTime <= this.alphaCap) {
-      console.log("no fading")
-      this.context.globalAlpha = 1;
-    } else if (this.count < this.waitTime/2) {
-      console.log("fade in before", this.context.globalAlpha)
-      this.context.globalAlpha += (1 - this.curAlpha) / (this.waitTime/2);
-      console.log("fade in after", this.context.globalAlpha)
-    }  else {
-      console.log("fade out before", this.context.globalAlpha)
-      this.context.globalAlpha -= (1 - this.curAlpha * this.waitRate)/(this.waitTime/2);
-      console.log("fade out", this.context.globalAlpha)
-    }
-  }
-
   /** ****************************************************************************************************************************
    * Canvas
    */
@@ -230,7 +185,7 @@ class Game {
     this.context = this.canvas.getContext('2d');
 
     this.cellSize = this.zoom.cellSize;
-    this.cellSpace = 1;
+    this.cellSpace = this.zoom.cellSpace;
   }
 
 
@@ -318,12 +273,12 @@ class Game {
       this.context.fillStyle = this.colors.dead;
     }
     
-    this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
-    // let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
-    // let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
-    // this.context.beginPath();
-    // this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
-    // this.context.fill();
+    // this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
+    let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
+    let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
+    this.context.beginPath();
+    this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
+    this.context.fill();
   }
 
   flashInsertionPoint() {
@@ -344,9 +299,11 @@ class Game {
 
   _drawInsertionPoint (on) {
     let x = this._processXCoord(this._getLastInsertionPoint()),
-    y = this._processYCoord(this._getLastLine() + this.cellSpace),
-    width = this.cellSize / 2,
-    height = (this.lineHeight + this.leading-this.cellSpace)*this.cellSize;
+        y = this._processYCoord(this._getLastLine() - this.leading/4),
+        width = this.cellSize / 2,
+        height = ((this.lineHeight - this.leading/2) * this.cellSpace) + ((this.lineHeight - this.leading/2) * this.cellSize);
+
+        // console.log(x,y,width, height)
     this.context.fillStyle = on ? this.colors.ipColor : this.colors.dead;
     this.context.fillRect(x, y, width, height);
   }
@@ -391,7 +348,7 @@ class Game {
       this.addString(ltr);
       this.currentWord.push(ltr);
     } catch (e) {
-      console.log(e);
+      console.log(e, ltr);
     }
   }
 
