@@ -26,7 +26,8 @@ class Game {
     this.running = false;
     this.autoplay = false;
     this.insPointCounter = 0;
-    this.currentWord = [];
+    this.currentText = [];
+    this.lastSpace = 0;
 
     this.curAlpha = 1;
 
@@ -336,36 +337,58 @@ class Game {
   addSpace () {
     let newPoint = this._getLastInsertionPoint() + 7;
     this.insertionPoints.push(newPoint)
-    this.currentWord = [];
+    this.lastSpace = this.currentText.length;
+    this.currentText.push("\\s");
   }
 
   carriageReturn () {
     this.insertionPoints.push(this.marginLeft)
     this.line += 1;
-    this.currentWord = [];
+    this.lastSpace = this.currentText.length;
+    this.currentText.push("\\n");
   }
 
   typeLetter (ltr) {
-    try {
+    if (ltr == "\\s") {
+      this.addSpace();
+    } else if (ltr == "\\n") {
+      this.carriageReturn();
+    } else {
+      try {
+        if (this._willBumpToNewLine(ltr)) {
+          if (this.zoom.current !== 'xs' && this._nextLineIsMoreThanHalf()) {
+            console.log(ltr, this.zoom.current !== 'xs')
+            this._setSmallerSize();
+            this.init();
 
-      if (this.willBumpToNewLine(ltr)) {
-        for (let i = 0; i < this.currentWord.length; i++) {
-          this.deleteLetter()  
+            this.line = 0;
+
+            for (const l in this.currentText) {
+              this.typeLetter(this.currentText[l])
+            }
+
+            this.redrawWorld();
+          } else {
+            for (let i = 0; i < this._getLastWordLength(); i++) {
+              this.deleteLetter(false)  
+            } 
+
+            this.line = this.line + 1;
+            this.insertionPoints.push(this.marginLeft);
+
+            for (let i = this.lastSpace + 1; i < this.currentText.length; i++) {
+              this.addString(this.currentText[i]);
+            }
+          }
         } 
 
-        this.line = this.line + 1;
-        this.insertionPoints.push(this.marginLeft);
-
-        for (let i = 0; i < this.currentWord.length; i++) {
-          this.addString(this.currentWord[i]);
-        }
-      } 
-
-      this.addString(ltr);
-      this.currentWord.push(ltr);
-    } catch (e) {
-      console.log(e, ltr);
+        this.addString(ltr);
+        this.currentText.push(ltr);
+      } catch (e) {
+        console.log(e, ltr);
+      }
     }
+    
   }
 
   /**
@@ -394,7 +417,7 @@ class Game {
     this.insertionPoints.push(newPoint);
   }
 
-  deleteLetter () {
+  deleteLetter (removeFromTracker) {
     var row;
     
     var xymax = this._trimInsertionPoints();
@@ -403,6 +426,10 @@ class Game {
       this.line--;
       
       xymax = this._trimInsertionPoints();
+    }
+
+    if (removeFromTracker) {
+      this.currentText.pop()
     }
 
     for (let i = xymax[1]; i <= this.actualState.highestRow; i++) {
@@ -414,14 +441,22 @@ class Game {
     }
   }
 
-  willBumpToNewLine (str) {
-    return this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft
+  _willBumpToNewLine (str) {
+    return this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft;
+  }
+
+  _nextLineIsMoreThanHalf () {
+    return this.line + 1 > Math.round(this.rows / (this.lineHeight + this.leading)) /  2 - 1;
   }
 
   _trimInsertionPoints () {
     let xMax = this.insertionPoints.pop();
 
     return [this._getLastInsertionPoint() - this.letterSpacing, this._getLastLine(), xMax];
+  }
+
+  _getLastWordLength () {
+    return this.currentText.length - this.lastSpace;
   }
 
   _getLastInsertionPoint () {
@@ -438,6 +473,23 @@ class Game {
 
   _processYCoord (y) {
     return this.cellSpace + (this.cellSpace * y) + (this.cellSize * y);
+  }
+
+  _setSmallerSize () {
+    switch (this.zoom.current) {
+      case 'xl':
+        this.zoom.current = 'l';
+        break;
+      case 'l':
+        this.zoom.current = 'm';
+        break;
+      case 'm':
+        this.zoom.current = 's';
+        break;
+      default:
+        this.zoom.current = 'xs'
+        break;
+    }
   }
 
 }

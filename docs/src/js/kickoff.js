@@ -37,6 +37,9 @@ window.onload = ()=>{
     GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
     GAME.flashInsertionPoint();
 
+    sizeSelector.value = 'm';
+
+
 
     startButton.addEventListener('click', (event) => {
         GAME.running = !GAME.running;
@@ -102,7 +105,7 @@ window.onload = ()=>{
             } else if (e.key === 'Enter') {
                 GAME.carriageReturn();
             } else if (e.key === "Backspace" || e.key === "Delete") {
-                GAME.deleteLetter();
+                GAME.deleteLetter(true);
             } else if (/[\.\,\-\:\;\!\?]/.test(e.key)){
                 GAME.typeLetter(LETTERS[CUR_FONT][e.code]);    
             } else {
