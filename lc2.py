@@ -65,6 +65,8 @@ for root, dirs, files in os.walk(directory, topdown=False):
 					lines = ""
 					i = 0
 
+					print(file)
+					
 					for line in f:
 
 						if (i > 1 and line != "!\n"):
@@ -84,7 +86,7 @@ for root, dirs, files in os.walk(directory, topdown=False):
 
 
 					processed_lines.append(processed)
-
+					print(line)
 					if(line[-1].isdigit()):
 						for _ in range(int(line[-1])-1):
 							processed_lines.append([])

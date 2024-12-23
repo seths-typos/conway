@@ -16,12 +16,8 @@ class Game {
     let baseColor = '#000000';
 
     // Variables
-    this.waitTime = 2;
-    this.waitCap = 1;
-    this.waitRate = 1;
+    this.waitTime = 1;
     this.count = 0
-    this.alphaStep = 1 / ((this.waitTime - this.waitCap) / this.waitStep);
-    this.firstRun = true;
 
     this.running = false;
     this.autoplay = false;
@@ -46,7 +42,7 @@ class Game {
 
     // Zoom level
     this.zoom = {
-      current: "xs",
+      current: "xl",
       xs:{
         cellSize : 1,
         cellSpace: 1
@@ -172,10 +168,6 @@ class Game {
       var liveCellNumber = this.actualState.nextGeneration();
 
       this.count = 0;
-
-      if (this.firstRun) {
-        this.firstRun = false;
-      }
     } else {
       this.count += 1;
     }
@@ -250,7 +242,6 @@ class Game {
             try {
               this.drawCell(col, row, true);
             } catch (e) {
-              console.log(e, col, row, this.columns, this.rows, this.actualState.age[col])
               this.running = false;
             }
           }
@@ -354,19 +345,25 @@ class Game {
     } else if (ltr == "\\n") {
       this.carriageReturn();
     } else {
+      console.log(ltr)
       try {
         if (this._willBumpToNewLine(ltr)) {
           if (this.zoom.current !== 'xs' && this._nextLineIsMoreThanHalf()) {
-            console.log(ltr, this.zoom.current !== 'xs')
             this._setSmallerSize();
             this.init();
 
             this.line = 0;
 
-            for (const l in this.currentText) {
-              this.typeLetter(this.currentText[l])
-            }
+            let temp = this.currentText.slice()
 
+            this.currentText = []
+
+            console.log("temp", temp, "this.currentText", this.currentText)
+
+            for (const l in temp) {
+              this.typeLetter(temp[l])
+            }
+            
             this.redrawWorld();
           } else {
             for (let i = 0; i < this._getLastWordLength(); i++) {
@@ -446,7 +443,7 @@ class Game {
   }
 
   _nextLineIsMoreThanHalf () {
-    return this.line + 1 > Math.round(this.rows / (this.lineHeight + this.leading)) /  2 - 1;
+    return this.line + 1 > Math.round(this.rows / (this.lineHeight + this.leading)) /  2;
   }
 
   _trimInsertionPoints () {

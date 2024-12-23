@@ -21,23 +21,23 @@ window.onload = ()=>{
         fontSelector.appendChild(opt);
     }
 
-    for (size in GAME.zoom) {
-        if (size == "current") {
-            continue;
-        }
+    // for (size in GAME.zoom) {
+    //     if (size == "current") {
+    //         continue;
+    //     }
 
-        let opt = document.createElement('option');
-        opt.value = size;
-        opt.innerHTML = size;
-        sizeSelector.appendChild(opt);
-    }
+    //     let opt = document.createElement('option');
+    //     opt.value = size;
+    //     opt.innerHTML = size;
+    //     sizeSelector.appendChild(opt);
+    // }
 
     fontSelector.value = 'Mortal'
     CUR_FONT = fontSelector.value;
     GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
     GAME.flashInsertionPoint();
 
-    sizeSelector.value = 'm';
+    // sizeSelector.value = 'm';
 
 
 
@@ -80,10 +80,10 @@ window.onload = ()=>{
         GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
     })
 
-    sizeSelector.addEventListener('change', ()=>{
-        GAME.zoom.current = sizeSelector.value;
-        GAME.init();
-    })
+    // sizeSelector.addEventListener('change', ()=>{
+    //     GAME.zoom.current = sizeSelector.value;
+    //     GAME.init();
+    // })
 
     typeButton.addEventListener('click', (event) => {
         GAME.reset()
@@ -98,6 +98,7 @@ window.onload = ()=>{
         if (textField === document.activeElement) {
             return;
         }
+
         // GAME.nextGeneration(); // makes it evolve after each step
         try {
             if (e.keyCode == 32) {
@@ -106,7 +107,7 @@ window.onload = ()=>{
                 GAME.carriageReturn();
             } else if (e.key === "Backspace" || e.key === "Delete") {
                 GAME.deleteLetter(true);
-            } else if (/[\.\,\-\:\;\!\?]/.test(e.key)){
+            } else if (/[\.\,\-\:\;\!\?]/.test(e.key)|| e.code.slice(0,5) == "Digit"){
                 GAME.typeLetter(LETTERS[CUR_FONT][e.code]);    
             } else {
                 GAME.typeLetter(LETTERS[CUR_FONT][e.key]);    
