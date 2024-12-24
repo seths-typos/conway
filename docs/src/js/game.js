@@ -144,11 +144,13 @@ class Game {
   cleanUp () {
     this.line = 0;
     this.actualState.reset(); // Reset/init algorithm
+    this.zoom.current = 'xl';
+    this.init()
     this.clearWorld();
     this.redrawWorld();
   }
 
-
+zoom
   /**
    * Prepare DOM elements and Canvas for a new run
    */
@@ -330,11 +332,11 @@ class Game {
     if (this.progressEachStep) {
       this.actualState.nextGeneration();
     }
-    
+
     let newPoint = this._getLastInsertionPoint() + 7;
     this.insertionPoints.push(newPoint)
     this.lastSpace = this.currentText.length;
-    this.currentText.push("\\s");
+    this.currentText.push(["\\s"]);
   }
 
   carriageReturn () {
@@ -345,7 +347,7 @@ class Game {
     this.insertionPoints.push(this.marginLeft)
     this.line += 1;
     this.lastSpace = this.currentText.length;
-    this.currentText.push("\\n");
+    this.currentText.push(["\\n"]);
   }
 
   typeLetter (ltr, alignment) {
@@ -358,7 +360,6 @@ class Game {
     } else if (ltr == "\\n") {
       this.carriageReturn();
     } else {
-      console.log(ltr)
       try {
         if (this._willBumpToNewLine(ltr)) {
           if (this.zoom.current !== 'xs' && this._nextLineIsMoreThanHalf()) {
@@ -372,7 +373,7 @@ class Game {
             this.currentText = []
 
             for (const l in temp) {
-              this.typeLetter(temp[l])
+              this.typeLetter(temp[l][0], temp[l][1]);
             }
             
             this.redrawWorld();
@@ -385,13 +386,13 @@ class Game {
             this.insertionPoints.push(this.marginLeft);
 
             for (let i = this.lastSpace + 1; i < this.currentText.length; i++) {
-              this.addString(this.currentText[i]);
+              this.addString(this.currentText[i][0],this.currentText[i][1]);
             }
           }
         } 
 
         this.addString(ltr, alignment);
-        this.currentText.push(ltr);
+        this.currentText.push([ltr, alignment]);
       } catch (e) {
         console.log(e, ltr);
       }

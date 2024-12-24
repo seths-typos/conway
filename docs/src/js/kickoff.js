@@ -106,7 +106,6 @@ window.onload = ()=>{
         if (textField === document.activeElement) {
             return;
         }
-        console.log(e.key, e.code)
 
         // GAME.actualState.nextGeneration(); // makes it evolve after each step
         try {
@@ -124,7 +123,9 @@ window.onload = ()=>{
                 GAME.typeLetter(LETTERS[CUR_FONT]["DoubleQuote"], "t");    
             } else if (/[*^\']/.test(e.key)){
                 GAME.typeLetter(LETTERS[CUR_FONT][e.key], "t");    
-            } else if (/[\.\,\:\;\d]/.test(e.key)){
+            } else if (/[\:]/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT]["Colon"], false);    
+            } else if (/[\.\,\d]/.test(e.key)){
                 GAME.typeLetter(LETTERS[CUR_FONT][e.code], false);    
             } else {
                 GAME.typeLetter(LETTERS[CUR_FONT][e.key], false);    
