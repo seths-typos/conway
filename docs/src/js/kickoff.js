@@ -13,6 +13,7 @@ window.onload = ()=>{
     let sizeSelector = document.getElementById("sizeSelector");
     let textField = document.getElementById("textField");
     let typeButton = document.getElementById("typeButton");
+    let progressToggle = document.getElementById("progressToggle");
 
     for (font in LETTERS) {
         let opt = document.createElement('option');
@@ -62,6 +63,13 @@ window.onload = ()=>{
     });
 
     /**
+     * Button Handler - Next Step - One Step only
+     */
+    progressToggle.addEventListener('change', (event) => {
+        GAME.progressEachStep = progressToggle.checked
+    });
+
+    /**
     * Button Handler - Clear World
     */
     clearButton.addEventListener('click', (event) => {
@@ -100,7 +108,7 @@ window.onload = ()=>{
         }
         console.log(e.key, e.code)
 
-        // GAME.nextGeneration(); // makes it evolve after each step
+        // GAME.actualState.nextGeneration(); // makes it evolve after each step
         try {
             if (e.keyCode == 32) {
                 GAME.addSpace();

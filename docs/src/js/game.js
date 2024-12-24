@@ -84,6 +84,7 @@ class Game {
 
     // ListLife Variables
     this.actualState = null;
+    this.progressEachStep = false;
 
     // Canvas Variables
     this.context = null;
@@ -326,6 +327,10 @@ class Game {
    * 
    */
   addSpace () {
+    if (this.progressEachStep) {
+      this.actualState.nextGeneration();
+    }
+    
     let newPoint = this._getLastInsertionPoint() + 7;
     this.insertionPoints.push(newPoint)
     this.lastSpace = this.currentText.length;
@@ -333,6 +338,10 @@ class Game {
   }
 
   carriageReturn () {
+    if (this.progressEachStep) {
+      this.actualState.nextGeneration();
+    }
+
     this.insertionPoints.push(this.marginLeft)
     this.line += 1;
     this.lastSpace = this.currentText.length;
@@ -340,6 +349,10 @@ class Game {
   }
 
   typeLetter (ltr, alignment) {
+    if (this.progressEachStep) {
+      this.actualState.nextGeneration();
+    }
+
     if (ltr == "\\s") {
       this.addSpace();
     } else if (ltr == "\\n") {
