@@ -98,6 +98,7 @@ window.onload = ()=>{
         if (textField === document.activeElement) {
             return;
         }
+        console.log(e.key, e.code)
 
         // GAME.nextGeneration(); // makes it evolve after each step
         try {
@@ -107,10 +108,18 @@ window.onload = ()=>{
                 GAME.carriageReturn();
             } else if (e.key === "Backspace" || e.key === "Delete") {
                 GAME.deleteLetter(true);
-            } else if (/[\.\,\-\:\;\!\?]/.test(e.key)|| e.code.slice(0,5) == "Digit"){
-                GAME.typeLetter(LETTERS[CUR_FONT][e.code]);    
+            } else if (/[\-]/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT]["-"], "m");
+            } else if (/[\']/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT]["Quote"], "t");    
+            } else if (/[\"]/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT]["DoubleQuote"], "t");    
+            } else if (/[*^\']/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT][e.key], "t");    
+            } else if (/[\.\,\:\;\d]/.test(e.key)){
+                GAME.typeLetter(LETTERS[CUR_FONT][e.code], false);    
             } else {
-                GAME.typeLetter(LETTERS[CUR_FONT][e.key]);    
+                GAME.typeLetter(LETTERS[CUR_FONT][e.key], false);    
             }    
         } catch (e) {
             console.log(e)

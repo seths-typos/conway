@@ -339,7 +339,7 @@ class Game {
     this.currentText.push("\\n");
   }
 
-  typeLetter (ltr) {
+  typeLetter (ltr, alignment) {
     if (ltr == "\\s") {
       this.addSpace();
     } else if (ltr == "\\n") {
@@ -357,8 +357,6 @@ class Game {
             let temp = this.currentText.slice()
 
             this.currentText = []
-
-            console.log("temp", temp, "this.currentText", this.currentText)
 
             for (const l in temp) {
               this.typeLetter(temp[l])
@@ -379,7 +377,7 @@ class Game {
           }
         } 
 
-        this.addString(ltr);
+        this.addString(ltr, alignment);
         this.currentText.push(ltr);
       } catch (e) {
         console.log(e, ltr);
@@ -392,8 +390,8 @@ class Game {
    * 
    */
 
-  addString (str) {
-    var code, i, j, k, x, y;
+  addString (str, alignment) {
+    var code, i, j, k, x, y, adjustment = 0;
 
     code = JSON.parse(str.code);
 
@@ -403,6 +401,14 @@ class Game {
           x = code[i][k][j] + this._getLastInsertionPoint();
 
           y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight+(this.lineHeight-code.length);
+
+          if (alignment === 't') {
+            adjustment = this.lineHeight - code.length - this.leading
+          } else if (alignment === 'm') {
+            adjustment = (this.lineHeight - code.length - this.leading) / 2
+          }
+
+          y = y - adjustment
 
           this.actualState.addCell(x, y);
         }
