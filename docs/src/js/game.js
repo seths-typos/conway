@@ -419,7 +419,7 @@ zoom
           if (alignment === 't') {
             adjustment = this.lineHeight - code.length - this.leading
           } else if (alignment === 'm') {
-            adjustment = (this.lineHeight - code.length - this.leading) / 2
+            adjustment = Math.round((this.lineHeight - code.length - this.leading) / 2)
           }
 
           y = y - adjustment
@@ -451,6 +451,7 @@ zoom
 
     for (let i = xymax[1]; i <= this.actualState.highestRow; i++) {
       for (let j = xymax[0]; j <= xymax[2]; j++) {
+        console.log(i, j)
         if (i in this.actualState.cells && this.actualState.cells[i].has(j)) {
           this.actualState.removeCell(i,j);
         }
