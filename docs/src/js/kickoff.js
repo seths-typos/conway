@@ -3,6 +3,28 @@ var INTERVAL_ID = null;
 var CUR_FONT = null;
 
 window.onload = ()=>{
+    let title = new SiteTitle();
+
+    window.onmousemove = (e) => { title.trackAndUpdate(e); };
+
+    document.addEventListener("mouseleave", function(event){
+        if(event.clientY <= 0 || event.clientX <= 0 || (event.clientX >= window.innerWidth || event.clientY >= window.innerHeight)) {
+            title.mouseOut()
+        }
+    });
+
+    let launchButton = document.getElementById("launchButton"),
+        body = document.getElementById("body");
+
+    launchButton.addEventListener('click', (e) => {
+        launchButton.blur();
+        e.stopPropagation();
+        body.classList.add('game-open');
+        runGame();
+    })
+};
+
+function runGame () {
     GAME = new Game({});
     GAME.init();
 
@@ -137,4 +159,4 @@ window.onload = ()=>{
         
         GAME.redrawWorld();
     };    
-};
+}

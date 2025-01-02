@@ -13,11 +13,12 @@ class Game {
 
   constructor () {
     console.log("new game", this)
-    let baseColor = '#000000';
+    let baseColor = '#111011';
 
     // Variables
     this.waitTime = 1;
     this.count = 0
+    this.generation = 0;
 
     this.running = false;
     this.autoplay = false;
@@ -70,13 +71,15 @@ class Game {
       dead : baseColor,
       trail : ['#EE82EE', '#FF0000', '#FF7F00', '#FFFF00', '#008000 ', '#0000FF', '#4B0082'],
       ipColor : '#ffffff',
-      alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
+      // alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
+      // alive : ['#E6E0EA', '#D2C8DA', '#BEB0CA', '#AA98BA', '#9680AA', '#82689A', '#6D5782', '#59476A', '#443752', '#111011','#443752', '#59476A', '#6D5782', '#82689A', '#9680AA', '#AA98BA', '#BEB0CA', '#D2C8DA','#E6E0EA']
+      alive : ['#E6E0EA','#E6E0EA', '#D2C8DA','#D2C8DA', '#BEB0CA','#BEB0CA', '#AA98BA','#AA98BA', '#9680AA','#9680AA', '#82689A','#82689A', '#6D5782','#6D5782', '#59476A', '#59476A','#443752', '#443752','#111011','#111011','#443752','#443752', '#59476A','#59476A', '#6D5782','#6D5782', '#82689A', '#82689A','#9680AA', '#9680AA','#AA98BA','#AA98BA', '#BEB0CA','#BEB0CA', '#D2C8DA','#D2C8DA','#E6E0EA','#E6E0EA']
     };
 
     // Text
     this.line = 0;
     this.marginTop = 10;
-    this.marginLeft = null;
+    this.marginLeft = 14;
     this.insertionPoints = [];
     this.letterSpacing = 1;
     this.lineHeight = 10;
@@ -94,6 +97,11 @@ class Game {
     this.cellSpace = null;
     this.rows = null;
     this.columns = null;
+
+    this.square = true;
+
+    // this.pastStates = []
+    // this.pastAges = []
   }
 
   init () {
@@ -106,7 +114,7 @@ class Game {
         columns: this.columns
       });
 
-      // this.setNoGridOn();
+      this.setNoGridOn();
 
       this.prepare();
     } catch (e) {
@@ -130,7 +138,7 @@ class Game {
 
     this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.cellSize + this.cellSpace));
 
-    this.marginLeft = Math.round(this.rows/7);
+    // this.marginLeft = Math.round(this.rows/7);
   }
 
   setCapHeight (ltr) {
@@ -142,6 +150,7 @@ class Game {
    * Clean up actual state and prepare a new run
    */
   cleanUp () {
+    this.generation = 0;
     this.line = 0;
     this.actualState.reset(); // Reset/init algorithm
     this.zoom.current = 'xl';
@@ -164,8 +173,7 @@ zoom
    */
   nextStep () {
     this.context.clearRect(0,0,this.width, this.height)
-    
-    
+
     // Algorithm run
     if (this.count == this.waitTime || !this.running) {
       var liveCellNumber = this.actualState.nextGeneration();
@@ -174,6 +182,10 @@ zoom
     } else {
       this.count += 1;
     }
+
+    // _generateAnimationStatesAndAges ()
+
+    this.generation += 1;
 
     this.redrawWorld();
 
@@ -258,6 +270,7 @@ zoom
    * setNoGridOn
    */
   setNoGridOn () {
+    this.square = true;
     this.cellSize = this.zoom[this.zoom.current]["cellSize"] + this.zoom[this.zoom.current]["cellSpace"];
     this.cellSpace = 0;
   }
@@ -284,12 +297,15 @@ zoom
       this.context.fillStyle = this.colors.schemes[this.colors.current].dead;
     }
     
-    // this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
-    let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
-    let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
-    this.context.beginPath();
-    this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
-    this.context.fill();
+    if (this.square) {
+      this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
+    } else {
+      let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
+      let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
+      this.context.beginPath();
+      this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
+      this.context.fill();
+    }
   }
 
   flashInsertionPoint() {
@@ -507,6 +523,28 @@ zoom
       default:
         this.zoom.current = 'xs'
         break;
+    }
+  }
+
+  _generateAnimationStatesAndAges () {
+    let that = this, tempCells = {}, tempAges = {};
+
+    Object.keys(this.actualState.cells).forEach(function(key, index) {
+      tempCells[key] = JSON.stringify(Array.from(that.actualState.cells[key]));
+    });
+
+    Object.keys(this.actualState.age).forEach(function(key, index) {
+      tempAges[key] = JSON.stringify(that.actualState.age[key]);
+    });
+
+    this.pastStates.push(JSON.stringify(tempCells))
+    this.pastAges.push(JSON.stringify(tempAges))
+
+    console.log(this.generation)
+
+    if (this.generation == 50) {
+      console.log(window.URL.createObjectURL(new Blob(this.pastStates, {type: 'text/JSON'})));
+      console.log(window.URL.createObjectURL(new Blob(this.pastAges, {type: 'text/JSON'})));
     }
   }
 

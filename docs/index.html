@@ -4,25 +4,42 @@
     
     <link rel="stylesheet" type="text/css" href="src/css/style.css" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bellota+Text:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
     <title>Conway's Game of Life - Javascript/Canvas Implementation</title>
   </head>
-  <body>
+  <body id="body">
     <div id="wrapper">
-      <div class="box controls" id="controls">
-        <form action="">
-          <input type="button" value="Run" id="buttonRun" />
-          <input type="button" value="Step" id="buttonStep" />
-          <input type="button" value="Clear" id="buttonClear" />
-          <textarea id="textField" name="textField" rows="5" cols="33"></textarea>
-          <input type="button" value="Type" id="typeButton" />
-          <select id="fontSelector"></select>
-          <input type="checkbox" id="progressToggle" />
-          <!-- <select id="sizeSelector"></select> -->
-        </form>
-      </div>
-      <canvas id="canvas" width="901" height="433"></canvas>
+      
+      <section id="launch">
+        <button class="button-primary" id="launchButton">Launch Game</button>
+      </section>  
+      <figure id="title">
+        <canvas id="titleCanvas"></canvas>
+      </figure>
+      <section id="info">
+        <p>A typography experiment based on Conway's Game of Life.</p>
+        <ul>
+          <li>About the Project</li>
+          <li>Conway's Game of Life</li>
+          <li>Type Specimens</li>
+        </ul>
+      </section>
     </div>
+    <figure id="game">
+      <form class="box controls" id="controls" action="">
+        <input type="button" value="Run" id="buttonRun" />
+        <input type="button" value="Step" id="buttonStep" />
+        <input type="button" value="Clear" id="buttonClear" />
+        <textarea id="textField" name="textField" rows="5" cols="33"></textarea>
+        <input type="button" value="Type" id="typeButton" />
+        <select id="fontSelector"></select>
+        <input type="checkbox" id="progressToggle" />
+        <!-- <select id="sizeSelector"></select> -->
+      </form>
+      <canvas id="canvas" width="901" height="433"></canvas>
+    </figure>
     <script src="dist/js/main.js"></script>
   </body>
 </html>

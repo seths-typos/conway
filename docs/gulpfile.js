@@ -15,6 +15,7 @@ gulp.task('clean', async function(done) {
 
 gulp.task('jsBundle', async function(done) {
   return gulp.src([
+            'src/js/header_animation.js',
             'src/js/letters.js',
             'src/js/typer.js',
             'src/js/cell_list.js',

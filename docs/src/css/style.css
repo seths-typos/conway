@@ -1,151 +1,149 @@
-/**
-* Game of Life - JS & CSS
-* http://pmav.eu
-*/
+@import url("reset.css");
+
+html {
+  --fs-sm: clamp(0.83rem, -0.12vi + 0.86rem, 0.73rem);
+  --fs-base: clamp(1rem, 0.23vi + 0.94rem, 1.19rem);
+  --fs-md: clamp(1.2rem, 0.87vi + 0.98rem, 1.92rem);
+  --fs-lg: clamp(1.44rem, 2.01vi + 0.94rem, 3.11rem);
+  --fs-xl: clamp(1.73rem, 3.98vi + 0.73rem, 5.03rem);
+  --fs-xxl: clamp(2.07rem, 7.31vi + 0.25rem, 8.14rem);
+  --fs-xxxl: clamp(2.49rem, 12.87vi + -0.73rem, 13.17rem);
+}
 
 body {
-  font-family: "Verdana", sans-serif;
-  font-size: 14px;
-  color: #fcfcfc;
-  background: #000000;
-  margin: 0;
+  color: var(--core-2, #FAF8FA);
+  background: #111011;
+  font-size: var(--fs-base);
+  font-family: "Bellota Text";
+  text-transform: lowercase;
+  line-height: 115%;
 }
 
-a {
-  color: blue;
+h1  {
+  /* effect-dropshadow */
+  color: var(--core-2, #FAF8FA);
+
+  /* effect-dropshadow */
+  text-shadow: 20px 2px 4px #AA98BA;
+  font-family: Automata Mortal;
+  font-size: var(--fs-xxxl);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%; 
+  text-transform: lowercase;
+  vertical-align: baseline;
+
 }
 
-h4 {
-  border-bottom: 1px solid #BBBBBB;
-  margin-bottom: 4px;
-  margin-top: 30px;
+#launch button:hover + #launch h1 {
+  text-shadow: 2px 2px 4px #AA98BA;
+
 }
 
-abbr {
-  border-bottom: 1px dotted #000000;
-  cursor: help;
+#game {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  right: 10px;
+  background-color: #111011;
+  transition: all .1s ease-in;
 }
 
-.cl {
-  line-height: 0;
-  clear: both;
+.game-open #game {
+  opacity: 1;
+  pointer-events: all;
 }
 
-#hint {
-  background: #FFFF66;
-  padding: 6px 10px;
-  float: right;
-}
+button {
+  display:block ;
+  max-height: 50px;
 
-/*#wrapper {
-  margin: auto;
-  width: 902px;
-}*/
-
-
-#title a {
-  text-decoration: none;
-  color: #222;
-}
-
-/* ################################### */
-
-canvas {
-  border: 0;
- padding: 0;
- margin: 0;
-}
-
-/* ################################### */
-
-.box {
-  margin: 0 0 26px 0;
-  font: 12px "Verdana", sans-serif;
-}
-
-.box .subtitle {
-  font: bold 16px "Helvetica", "Arial", sans-serif;
-  background: #BBB;
-  letter-spacing: -1px;
-  margin: 0 0 8px 0;
-  color: #222;
-  padding: 2px 4px 1px 4px;
-  clear: both;
-}
-
-.box .info {
-  margin: 4px 0;
-}
-
-.button {
-  border:none;
+  width: 213px;
+  padding: 10px 0px;
+  gap: 10px;
   background: none;
-  font-size: 24px;
-  line-height: 26px;
-  padding: 2px 6px 5px 6px;
-  margin: 0 10px 0 0;
-  float: left;
+
+  font-size: var(--fs-sm);
+  text-align: center;
+  text-transform: lowercase;
+
+  border-radius: 50px;
+  border: 1px solid rgba(250, 248, 250, 0.60);
+
+  /* effect-dropshadow */
+  box-shadow: 0px 0px 2px 2px #AA98BA, inset #AA98BA 0px 0px 0px 0px; 
+
+  color: #FAF8FA;
+  text-align: center;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+
+  transition: all .25s ease-out;
 }
 
-.button a {
-  text-decoration: none;
-  color: #cecece;
+button:hover {
+  border-color: var(--core-2);
+  box-shadow: 0px 0px 0px 0px #AA98BA,inset #AA98BA 0px 0px 1px 1px; 
+  cursor:pointer;
 }
 
-.button:hover {
-  /*border-bottom: 2px solid #AAAAAA;
-  border-right: 2px solid #AAAAAA;
-  border-top: 2px solid #333333;
-  border-left: 2px solid #333333;*/
-  cursor: pointer;
+li {
+  margin-top:25px;
 }
 
-.box input {
-  border: none;
-  /*border-bottom: 2px solid #333333;
-  border-right: 2px solid #333333;
-  border-top: 2px solid #AAAAAA;
-  border-left: 2px solid #AAAAAA;*/
-  background: #000;
-  color: #bababa;
-  font-size: 24px;
-  line-height: 26px;
+#wrapper {
+  padding-top: 2vh;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(10, 9.6vh);
+  justify-content: start;
+  width: 100%;
+  max-width: 98vw;
+  margin: 0 auto;
+  position: relative;
 }
 
-.box input:hover {
-  /*border-bottom: 2px solid #AAAAAA;
-  border-right: 2px solid #AAAAAA;
-  border-top: 2px solid #333333;
-  border-left: 2px solid #333333;*/
-  cursor: pointer;
+.game-open #wrapper {
+  pointer-events: none;
 }
 
-.box #exportUrl {
-  font-size: 24px;
-  display: none;
+
+#title {
+  grid-column: 1 / 8;
+  grid-row: 2 / 10;
 }
 
-.box #exportUrl a {
-  border-bottom: 2px solid #AAAAAA;
-  text-decoration: none;
-  color: #000000;
+
+#launch {
+  display:flex;
+  flex-flow: row wrap;
+  align-content: flex-end;
+
+  grid-column: 10 / 12;
+  grid-row: 8 / 10;
+
 }
 
-.box.layout span {
-  display: inline;
-  font-size: 20px;
-  padding: 0 0 0 10px;
+#info {
+  grid-column: 10 / 12;
+  grid-row: 2 / 5;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-content: flex-start;
+  flex-shrink: 0;
 }
 
-#footer {
-  background: #DDDDDD;
-  color: #222222;
-  font-size: 12px;
-  padding: 6px;
+#info p {
+  font-size: var(--fs-base);
+  line-height: 120%;
 }
 
-#footer a {
-  text-decoration: none;
-  font-weight: bold;
-  color: #222222;
+#info ul {
+  font-size: var(--fs-sm);
 }
