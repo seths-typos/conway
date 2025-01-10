@@ -1,5 +1,14 @@
-// draw state based on mouse location
-// set up listener to redraw
+/**
+ * 
+ * Automata Header Animation by seths_typos Jan 2025.
+ * 
+ * Simplified version of Conway's Game of Life text editor by seths_typos
+ * 
+ * some code based on:
+ * Game of Life - JS & CSS
+ * http://pmav.eu
+ * 04/Sep/2010
+ */
 
 class SiteTitle {
 	

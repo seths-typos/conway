@@ -1,3 +1,14 @@
+
+/**
+ * 
+ * Cell List helper class to support Game of Life Text Editor by seths_typos
+ * 
+ * some code based on:
+ * Game of Life - JS & CSS
+ * http://pmav.eu
+ * 04/Sep/2010
+ */
+
 class CellList {
 
   constructor (config) {
@@ -10,6 +21,10 @@ class CellList {
 
     this.clearAges();
   }
+
+/******************************************************************************************************************************
+ * Setup and Reset Functions
+ */
 
   reset () {
     this.cells = {};
@@ -24,6 +39,10 @@ class CellList {
     }
   }
 
+/******************************************************************************************************************************
+ * Generation Management
+ */
+
   nextGeneration () {
     var i, j, m, n, key, t1, t2, alive = 0, neighbours, allDeadNeighbours = {}, newState = new CellList({rows: this.rows, columns: this.columns});
 
@@ -33,7 +52,7 @@ class CellList {
         let y = parseInt(row);
 
         // Get number of live neighbours and remove alive neighbours from deadNeighbours
-        let neighbours = this.getNeighboursFromAlive(x, y);
+        let neighbours = this._getNeighboursFromAlive(x, y);
 
         // Join dead neighbours to check list
         for (let i in neighbours.dead) {
@@ -76,10 +95,7 @@ class CellList {
     return alive;
   }
 
-  /**
-   *
-   */
-  getNeighboursFromAlive  (x, y) {
+  _getNeighboursFromAlive (x, y) {
     var k;
 
     let neighbours = {
@@ -127,17 +143,9 @@ class CellList {
     return neighbours;
   }
 
-
-  /**
-   *
-   */
   isAlive (x, y) {
     return this.cells[y] && this.cells[y].has(x);
   }
-
-  /**
-   *
-   */
 
   addCell (x, y) {
     if (!(y in this.cells)) {
@@ -157,9 +165,6 @@ class CellList {
     this.cells[y].add(x);
   }
 
-  /**
-   *
-   */
   removeCell (x, y) {
     try {
       this.cells[x].delete(y);
@@ -168,30 +173,22 @@ class CellList {
     }
   }
 
+/******************************************************************************************************************************
+ * Helper Functions
+ */
 
-  /**
-   * _keepCellAlive
-   */
   _keepCellAlive (i, j) {
     if (this._isWithinBounds(i,j)) {
       this.age[i][j]++;
     }
   }
 
-
-  /**
-   * _changeCelltoAlive
-   */
   _changeCelltoAlive (i, j) {
     if (this._isWithinBounds(i,j)) {
       this.age[i][j] = 1;
     }
   }
 
-
-  /**
-   * _changeCelltoDead
-   */
   _changeCelltoDead (i, j) {
     if (this._isWithinBounds(i,j)) {
       this.age[i][j] = -this.age[i][j]; // Keep trail

@@ -14,13 +14,14 @@ window.onload = ()=>{
     });
 
     let launchButton = document.getElementById("launchButton"),
+        controls = document.getElementById("controls")
         body = document.getElementById("body");
 
     launchButton.addEventListener('click', (e) => {
         launchButton.blur();
         e.stopPropagation();
         body.classList.add('game-open');
-        runGame();
+        controls.addEventListener('transitionend', (e) => {console.log("running"); runGame();})
     })
 };
 
@@ -95,17 +96,23 @@ function runGame () {
     * Button Handler - Clear World
     */
     clearButton.addEventListener('click', (event) => {
+        clearButton.blur()
+
         if (GAME.running) {
-          GAME.reset()
-          document.getElementById('buttonRun').value = 'Run';
+            GAME.stopRunning()
+            GAME.cleanup()
+            document.getElementById('buttonRun').value = 'Run';
         } else {
-          GAME.cleanUp();
+            GAME.cleanUp();
         }
+
         document.activeElement = null;
         GAME.flashInsertionPoint();
     });
 
     fontSelector.addEventListener('change', ()=>{
+        fontSelector.blur();
+
         CUR_FONT = fontSelector.value;
         GAME.setCapHeight(LETTERS[CUR_FONT]["H"])
     })
@@ -116,7 +123,9 @@ function runGame () {
     // })
 
     typeButton.addEventListener('click', (event) => {
-        GAME.reset()
+        typeButton.blur();
+
+        GAME.cleanUp();
         document.getElementById('buttonRun').value = 'Run';
 
         typeString(textField.value);

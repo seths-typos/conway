@@ -1,11 +1,13 @@
 /*jslint onevar: true, undef: false, nomen: true, eqeqeq: true, plusplus: false, bitwise: true, regexp: true, newcap: true, immed: true  */
 
 /**
- * original Game of Life - JS & CSS
+ * 
+ * Conway's Game of Life text editor by seths_typos
+ * 
+ * some code based on:
+ * Game of Life - JS & CSS
  * http://pmav.eu
  * 04/Sep/2010
- * 
- * updated Nov 2024 by Seth Hamlin
  */
 
 
@@ -30,10 +32,6 @@ class Game {
 
     // Clear state
     this.clear = false;
-
-    // Initial state
-    // this.initialState = '[{"0":[0,1,3,4]},{"1":[0,1,2,3,4,5,6]},{"2":[1,2,4]},{"3":[0,1,2,3,4]},{"4":[0,1,2,5,6]},{"5":[1,2,5,6]},{"6":[0,1,2,3,4,5,6]},{"7":[0,1,3,4,5]}]';
-    // this.initialState = '';
 
     // Trail state
     this.trail = true;
@@ -71,12 +69,10 @@ class Game {
       dead : baseColor,
       trail : ['#EE82EE', '#FF0000', '#FF7F00', '#FFFF00', '#008000 ', '#0000FF', '#4B0082'],
       ipColor : '#ffffff',
-      // alive : ['#9898FF', '#8585FF', '#7272FF', '#5F5FFF', '#4C4CFF', '#3939FF', '#2626FF', '#1313FF', '#0000FF', '#1313FF', '#2626FF', '#3939FF', '#4C4CFF', '#5F5FFF', '#7272FF', '#8585FF']
-      // alive : ['#E6E0EA', '#D2C8DA', '#BEB0CA', '#AA98BA', '#9680AA', '#82689A', '#6D5782', '#59476A', '#443752', '#111011','#443752', '#59476A', '#6D5782', '#82689A', '#9680AA', '#AA98BA', '#BEB0CA', '#D2C8DA','#E6E0EA']
       alive : ['#E6E0EA','#E6E0EA', '#D2C8DA','#D2C8DA', '#BEB0CA','#BEB0CA', '#AA98BA','#AA98BA', '#9680AA','#9680AA', '#82689A','#82689A', '#6D5782','#6D5782', '#59476A', '#59476A','#443752', '#443752','#111011','#111011','#443752','#443752', '#59476A','#59476A', '#6D5782','#6D5782', '#82689A', '#82689A','#9680AA', '#9680AA','#AA98BA','#AA98BA', '#BEB0CA','#BEB0CA', '#D2C8DA','#D2C8DA','#E6E0EA','#E6E0EA']
     };
 
-    // Text
+    // Font Metrics
     this.line = 0;
     this.marginTop = 10;
     this.marginLeft = 14;
@@ -85,7 +81,7 @@ class Game {
     this.lineHeight = 10;
     this.leading = 4;
 
-    // ListLife Variables
+    // State
     this.actualState = null;
     this.progressEachStep = false;
 
@@ -93,21 +89,24 @@ class Game {
     this.context = null;
     this.width = null;
     this.height = null;
-    this.cellSize = null;
-    this.cellSpace = null;
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
+    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
     this.rows = null;
     this.columns = null;
-
     this.square = true;
 
     // this.pastStates = []
     // this.pastAges = []
   }
 
+ /** ****************************************************************************************************************************
+   * Setup and Reset Functions
+   */
+
   init () {
     try {
-      this.setMetrics();
-      this.initCanvas();     // Init canvas GUI
+      this.initGrid();
+      this.initCanvas();
 
       this.actualState = new CellList({
         rows: this.rows,
@@ -122,23 +121,16 @@ class Game {
     }
   }
 
-  reset () {
-    this.running = false;
-    this.cleanUp();
-  }
 
+  initGrid () {
+    let offset = document.getElementById("controls").getBoundingClientRect(),
+        box = document.getElementById("game").getBoundingClientRect();
 
-  setMetrics () {
-    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
-    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
+    this.rows = Math.round((box.height - offset.height - offset.bottom) / (this.cellSize + this.cellSpace));
 
-    this.columns = Math.round(window.innerWidth / (this.cellSize + this.cellSpace));
+    this.columns = Math.round(box.width / (this.cellSize + this.cellSpace));
 
-    let offset = document.getElementById("controls").getBoundingClientRect();
-
-    this.rows = Math.round((window.innerHeight - offset.height - offset.bottom) / (this.cellSize + this.cellSpace));
-
-    // this.marginLeft = Math.round(this.rows/7);
+    this.marginLeft = Math.round(this.rows/7);
   }
 
   setCapHeight (ltr) {
@@ -146,31 +138,24 @@ class Game {
     this.lineHeight = v.length + this.leading;
   }
 
-  /**
-   * Clean up actual state and prepare a new run
-   */
+  stopRunning () {
+    this.running = false;
+  }
+
   cleanUp () {
     this.generation = 0;
     this.line = 0;
-    this.actualState.reset(); // Reset/init algorithm
+    this.actualState.reset(); 
     this.zoom.current = 'xl';
     this.init()
     this.clearWorld();
     this.redrawWorld();
   }
 
-zoom
-  /**
-   * Prepare DOM elements and Canvas for a new run
+ /** ****************************************************************************************************************************
+   * Next Step
    */
-  prepare () {
-    this.clearWorld(); // Reset GUI
-    this.drawWorld(); // Draw State
-  }
 
-  /**
-   * Run Next Step
-   */
   nextStep () {
     this.context.clearRect(0,0,this.width, this.height)
 
@@ -201,21 +186,19 @@ zoom
   }
 
   /** ****************************************************************************************************************************
-   * Canvas
+   * Canvas and Drawing
    */
 
-  /**
-   * init
-   */
   initCanvas () {
     this.canvas = document.getElementById('canvas');
     this.context = this.canvas.getContext('2d');
   }
 
+  prepare () {
+    this.clearWorld(); // Reset GUI
+    this.drawWorld(); // Draw State
+  }
 
-  /**
-   * clearWorld
-   */
   clearWorld () {
     var i, j;
 
@@ -230,10 +213,6 @@ zoom
     this.drawCells();
   }
 
-
-  /**
-   * drawWorld
-   */
   drawWorld () {
     // Dynamic canvas size
     this.width = (this.cellSpace * this.columns) + (this.cellSize * this.columns);
@@ -265,29 +244,6 @@ zoom
     }
   }
 
-
-  /**
-   * setNoGridOn
-   */
-  setNoGridOn () {
-    this.square = true;
-    this.cellSize = this.zoom[this.zoom.current]["cellSize"] + this.zoom[this.zoom.current]["cellSpace"];
-    this.cellSpace = 0;
-  }
-
-
-  /**
-   * setNoGridOff
-   */
-  setNoGridOff () {
-    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
-    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
-  }
-
-
-  /**
-   * drawCell
-   */
   drawCell (i, j, alive) {   
     if (alive) {
       this.context.fillStyle = this.colors.alive[this.actualState.age[i][j] % this.colors.alive.length];
@@ -308,63 +264,20 @@ zoom
     }
   }
 
-  flashInsertionPoint() {
-    if (this.insPointCounter < 40) {
-      this._drawInsertionPoint(true);
-    } else if (this.insPointCounter < 60) {
-      this._drawInsertionPoint(false);
-    } else {
-      this.insPointCounter = 0;
-    }
-
-    this.insPointCounter++;
-
-    if (!this.running) { 
-      requestAnimationFrame(this.flashInsertionPoint.bind(this));
-    }
+  setNoGridOn () {
+    this.square = true;
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"] + this.zoom[this.zoom.current]["cellSpace"];
+    this.cellSpace = 0;
   }
 
-  _drawInsertionPoint (on) {
-    let x = this._processXCoord(this._getLastInsertionPoint()),
-        y = this._processYCoord(this._getLastLine() - this.leading/4),
-        width = this.cellSize / 2,
-        height = ((this.lineHeight - this.leading/2) * this.cellSpace) + ((this.lineHeight - this.leading/2) * this.cellSize);
-
-        // console.log(x,y,width, height)
-    this.context.fillStyle = on ? this.colors.ipColor : this.colors.dead;
-    this.context.fillRect(x, y, width, height);
+  setNoGridOff () {
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
+    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
   }
-
 
   /** ****************************************************************************************************************************
-   *
+   * Typing
    */
-
-
-  /**
-   * 
-   */
-  addSpace () {
-    if (this.progressEachStep) {
-      this.actualState.nextGeneration();
-    }
-
-    let newPoint = this._getLastInsertionPoint() + 7;
-    this.insertionPoints.push(newPoint)
-    this.lastSpace = this.currentText.length;
-    this.currentText.push(["\\s"]);
-  }
-
-  carriageReturn () {
-    if (this.progressEachStep) {
-      this.actualState.nextGeneration();
-    }
-
-    this.insertionPoints.push(this.marginLeft)
-    this.line += 1;
-    this.lastSpace = this.currentText.length;
-    this.currentText.push(["\\n"]);
-  }
 
   typeLetter (ltr, alignment) {
     if (this.progressEachStep) {
@@ -416,10 +329,6 @@ zoom
     
   }
 
-  /**
-   * 
-   */
-
   addString (str, alignment) {
     var code, i, j, k, x, y, adjustment = 0;
 
@@ -445,9 +354,30 @@ zoom
       }
     }
 
-
     let newPoint = this._getLastInsertionPoint() + str.width + this.letterSpacing;
     this.insertionPoints.push(newPoint);
+  }
+
+  addSpace () {
+    if (this.progressEachStep) {
+      this.actualState.nextGeneration();
+    }
+
+    let newPoint = this._getLastInsertionPoint() + 7;
+    this.insertionPoints.push(newPoint)
+    this.lastSpace = this.currentText.length;
+    this.currentText.push(["\\s"]);
+  }
+
+  carriageReturn () {
+    if (this.progressEachStep) {
+      this.actualState.nextGeneration();
+    }
+
+    this.insertionPoints.push(this.marginLeft)
+    this.line += 1;
+    this.lastSpace = this.currentText.length;
+    this.currentText.push(["\\n"]);
   }
 
   deleteLetter (removeFromTracker) {
@@ -474,6 +404,42 @@ zoom
       }
     }
   }
+
+/** ****************************************************************************************************************************
+ * Insertion Point
+ */
+
+  flashInsertionPoint() {
+    if (this.insPointCounter < 40) {
+      this._drawInsertionPoint(true);
+    } else if (this.insPointCounter < 60) {
+      this._drawInsertionPoint(false);
+    } else {
+      this.insPointCounter = 0;
+    }
+
+    this.insPointCounter++;
+
+    if (!this.running) { 
+      requestAnimationFrame(this.flashInsertionPoint.bind(this));
+    }
+  }
+
+  _drawInsertionPoint (on) {
+    let x = this._processXCoord(this._getLastInsertionPoint()),
+        y = this._processYCoord(this._getLastLine() - this.leading/4),
+        width = this.cellSize / 2,
+        height = ((this.lineHeight - this.leading/2) * this.cellSpace) + ((this.lineHeight - this.leading/2) * this.cellSize);
+
+        // console.log(x,y,width, height)
+    this.context.fillStyle = on ? this.colors.ipColor : this.colors.dead;
+    this.context.fillRect(x, y, width, height);
+  }
+
+
+/******************************************************************************************************************************
+ * Helper functions
+ */
 
   _willBumpToNewLine (str) {
     return this._getLastInsertionPoint()+str.width > this.columns - this.marginLeft;
@@ -502,11 +468,19 @@ zoom
   }
 
   _processXCoord (x) {
-    return this.cellSpace + (this.cellSpace * x) + (this.cellSize * x);
+    let coord = this.cellSpace + (this.cellSpace * x) + (this.cellSize * x);
+
+    console.log("x", coord)
+
+    return coord;
   }
 
   _processYCoord (y) {
-    return this.cellSpace + (this.cellSpace * y) + (this.cellSize * y);
+    let coord = this.cellSpace + (this.cellSpace * y) + (this.cellSize * y);
+
+    console.log("y", coord);
+
+    return coord;
   }
 
   _setSmallerSize () {
