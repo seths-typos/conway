@@ -3,26 +3,32 @@ var INTERVAL_ID = null;
 var CUR_FONT = null;
 
 window.onload = ()=>{
-    let title = new SiteTitle();
+    
 
-    window.onmousemove = (e) => { title.trackAndUpdate(e); };
+    document.addEventListener("titleReady", (e) => {
+        console.log("READY");
+        window.onmousemove = (e) => { TITLE.trackAndUpdate(e); };
 
-    document.addEventListener("mouseleave", function(event){
-        if(event.clientY <= 0 || event.clientX <= 0 || (event.clientX >= window.innerWidth || event.clientY >= window.innerHeight)) {
-            title.mouseOut()
-        }
+        document.addEventListener("mouseleave", function(event){
+            if(event.clientY <= 0 || event.clientX <= 0 || (event.clientX >= window.innerWidth || event.clientY >= window.innerHeight)) {
+                TITLE.mouseOut()
+            }
+        });
+
+        let launchButton = document.getElementById("launchButton"),
+            controls = document.getElementById("controls")
+            body = document.getElementById("body");
+
+        launchButton.addEventListener('click', (e) => {
+            launchButton.blur();
+            e.stopPropagation();
+            body.classList.add('game-open');
+            controls.addEventListener('transitionend', (e) => {console.log("running"); runGame();})
+        })
     });
 
-    let launchButton = document.getElementById("launchButton"),
-        controls = document.getElementById("controls")
-        body = document.getElementById("body");
-
-    launchButton.addEventListener('click', (e) => {
-        launchButton.blur();
-        e.stopPropagation();
-        body.classList.add('game-open');
-        controls.addEventListener('transitionend', (e) => {console.log("running"); runGame();})
-    })
+    TITLE = new SiteTitle();
+    TITLE.init();
 };
 
 function runGame () {

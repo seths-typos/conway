@@ -168,12 +168,9 @@ class Game {
       this.count += 1;
     }
 
-    // _generateAnimationStatesAndAges ()
-
     this.generation += 1;
 
     this.redrawWorld();
-
 
     // Flow Control
     if (this.running) { 
