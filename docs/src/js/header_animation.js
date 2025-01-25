@@ -73,14 +73,13 @@ class SiteTitle {
 	init () {
 		for (let i = 0; i < this.steps; i++) {
 			this.actualState.nextGeneration();
-			this.cycle.push(this.actualState.cells);
-			this.ages.push(this.actualState.age);
+			this.cycle.push(structuredClone(this.actualState.cells));
+			this.ages.push(structuredClone(this.actualState.age));
 		}
 
 		let rightSpace = this.windowWidth - this.windowCap;			
 		this.unit = parseInt(rightSpace / this.cycle.length);
 
-		console.log("yo yo")
 		const event = new Event("titleReady");
 		document.dispatchEvent(event);
 	}
@@ -88,9 +87,6 @@ class SiteTitle {
 	trackAndUpdate (e) {
     	let x = event.clientX,
     		state = this._getState(x);
-
-    		console.log("clientX", x,"state", state)
-
 
     	this.actualState.cells = this.cycle[state];
     	this.actualState.age = this.ages[state];
@@ -143,19 +139,30 @@ class SiteTitle {
 
   	_getState (x) {
   		if ( x > this.windowCap) {
-  			console.log(x, this.windowCap, this.unit)
   			return Math.round((x - this.windowCap) / this.unit); 
   		} else {
   			return 0
   		}
   	}
 
-  	_processXCoord (x) {
-		return this.cellSpace + (this.cellSpace * x) + (this.cellSize * x);
+	_processXCoord (x) {
+		let coord = this.cellSpace + this._units(x);
+
+		return coord;
 	}
 
 	_processYCoord (y) {
-		return this.cellSpace + (this.cellSpace * y) + (this.cellSize * y);
+		let coord = this.cellSpace + this._units(y) + this._units(this._getMidPoint() - 36);
+
+		return coord;
+	}
+
+	_units (val) {
+		return (this.cellSpace * val) + (this.cellSize * val) 
+	}
+
+	_getMidPoint () {
+		return Math.round(this.rows / 2);
 	}
 
 	_distFromOrigin (x,y) {

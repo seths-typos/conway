@@ -149,7 +149,7 @@ class CellList {
 
   addCell (x, y) {
     if (!(y in this.cells)) {
-      this.cells[y] = new Set([x]);
+      this.cells[parseInt(y)] = new Set([parseInt(x)]);
 
       return;
     } 
@@ -162,7 +162,7 @@ class CellList {
       this.farthestCol = x;
     }
     
-    this.cells[y].add(x);
+    this.cells[y].add(parseInt(x));
   }
 
   removeCell (x, y) {

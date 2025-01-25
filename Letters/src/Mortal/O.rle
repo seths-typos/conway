@@ -1,5 +1,5 @@
-#CXRLE Pos=-11,-6
-x = 17, y = 16, rule = B0123478/S01234678
-4bob2ob2obo$3b11o$2bobobo3bobobo$b3o9b3o$b2o11b2o$2b2o9b2o$b2o11b2o$3o
-11b3o$3o11b3o$b2o11b2o$2b2o9b2o$b2o11b2o$b3o9b3o$2b3obo3bob3o$3bob7obo
-$4bob2ob2obo!
+#CXRLE Pos=-11,-8
+x = 17, y = 18, rule = B0123478/S01234678
+4bob2ob2obo$3b11o$2bobobo3bobobo$b3o9b3o$b2o11b2o$2b2o9b2o$b2o11b2o$b
+2o11b2o$2o13b2o$2o13b2o$b2o11b2o$b2o11b2o$2b2o9b2o$b2o11b2o$b3o9b3o$2b
+3obo3bob3o$3bob7obo$4bob2ob2obo!

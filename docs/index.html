@@ -6,7 +6,7 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bellota+Text:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap" rel="stylesheet">
     <title>Conway's Game of Life - Javascript/Canvas Implementation</title>
   </head>
   <body id="body">
@@ -28,17 +28,81 @@
       </section>
     </div>
     <section id="game">
+      <button class="button-secondary closer" id="closer">close</button>
       <form class="box controls" id="controls" action="">
-        <input type="button" value="Run" id="buttonRun" />
-        <input type="button" value="Step" id="buttonStep" />
-        <input type="button" value="Clear" id="buttonClear" />
-        <textarea id="textField" name="textField" rows="5" cols="33"></textarea>
-        <input type="button" value="Type" id="typeButton" />
-        <select id="fontSelector"></select>
-        <input type="checkbox" id="progressToggle" />
+        <fieldset>
+          <button id="buttonRun" class="button-secondary"/>Run</button>
+          <button id="buttonStep" class="button-secondary"/>Step</button>
+          <button id="buttonClear" class="button-secondary"/>Clear</button>
+        </fieldset>
+        <section class="drawerContainer">
+          <fieldset>
+            <button id="buttonPaste" class="button-secondary"/>Paste Text</button>
+            <button id="buttonSettings" class="button-secondary"/>Settings</button>
+          </fieldset>
+          <section id="drawerPaste" class="drawer">
+            <p class="drawerTitle">Paste Text</p>
+            <textarea id="textField" name="textField" rows="5" cols="33" placeholder="place your text here..."></textarea>
+            <button id="typeButton" class="button-secondary"/>Type</button>    
+          </section>  
+          <section id="drawerSettings" class="drawer">
+            <p class="drawerTitle">settings</p>
+            <div class="switchContainer">
+              <div class="switchWrapper">
+                <span class="switchLabel">Type Style</span>
+                <label class="switchInner">
+                  <span class="switchTitle">Mortal</span>
+                  <figure class="switch">
+                    <input type="checkbox" id="styleToggle">
+                    <span class="slider"></span>
+                  </figure>
+                  <span class="switchTitle">Eternal</span>  
+                </label>
+              </div>
+              <div class="switchWrapper">
+                <span class="switchLabel">Auto-evolve</span>
+                <label class="switchInner">
+                  <span class="switchTitle">off</span>
+                  <figure class="switch">
+                    <input type="checkbox" id="evolveToggle">
+                    <span class="slider"></span>
+                  </figure>
+                  <span class="switchTitle">on</span>
+                </label>
+              </div>  
+              <div class="switchWrapper">
+                <span class="switchLabel">Cell Shape</span>
+                <label class="switchInner">
+                  <span class="switchTitle">Square</span>
+                  <figure class="switch">
+                    <input type="checkbox" id="shapeToggle">
+                    <span class="slider"></span>
+                  </figure>
+                  <span class="switchTitle">Round</span>
+                </label>
+              </div>  
+              <div class="switchWrapper">
+                <span class="switchLabel">Grid Space</span>
+                <label class="switchInner">
+                  <span class="switchTitle">off</span>
+                  <figure class="switch">
+                    <input type="checkbox" id="gridToggle">
+                    <span class="slider"></span>
+                  </figure>
+                  <span class="switchTitle">on</span>
+                </label>
+              </div>  
+            </div>
+          </section>
+        </section>
+        
+        
+        
+        <!-- <select id="fontSelector"></select>
+        <input type="checkbox" id="progressToggle" /> -->
         <!-- <select id="sizeSelector"></select> -->
       </form>
-      <canvas id="canvas" width="901" height="433"></canvas>
+      <canvas id="canvas"></canvas>
     </section>
     <script src="dist/js/main.js"></script>
   </body>

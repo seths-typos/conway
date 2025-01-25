@@ -18,7 +18,7 @@ class Game {
     let baseColor = '#111011';
 
     // Variables
-    this.waitTime = 1;
+    this.waitTime = 2;
     this.count = 0
     this.generation = 0;
 
@@ -78,6 +78,7 @@ class Game {
     this.marginLeft = 14;
     this.insertionPoints = [];
     this.letterSpacing = 1;
+    this.capHeight = null;
     this.lineHeight = 10;
     this.leading = 4;
 
@@ -89,11 +90,12 @@ class Game {
     this.context = null;
     this.width = null;
     this.height = null;
-    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
-    this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
+    this._resetCellMetrics ();
+
     this.rows = null;
     this.columns = null;
     this.square = true;
+    this.grid = false;
 
     // this.pastStates = []
     // this.pastAges = []
@@ -105,7 +107,6 @@ class Game {
 
   init () {
     try {
-      this.initGrid();
       this.initCanvas();
 
       this.actualState = new CellList({
@@ -113,7 +114,9 @@ class Game {
         columns: this.columns
       });
 
-      this.setNoGridOn();
+      if (!this.grid) {
+        this.setNoGridOn();
+      }
 
       this.prepare();
     } catch (e) {
@@ -121,21 +124,10 @@ class Game {
     }
   }
 
-
-  initGrid () {
-    let offset = document.getElementById("controls").getBoundingClientRect(),
-        box = document.getElementById("game").getBoundingClientRect();
-
-    this.rows = Math.round((box.height - offset.height - offset.bottom) / (this.cellSize + this.cellSpace));
-
-    this.columns = Math.round(box.width / (this.cellSize + this.cellSpace));
-
-    this.marginLeft = Math.round(this.rows/7);
-  }
-
   setCapHeight (ltr) {
     let v = JSON.parse(ltr.code)
-    this.lineHeight = v.length + this.leading;
+    this.capHeight = v.length;
+    this.lineHeight = this.capHeight + this.leading;
   }
 
   stopRunning () {
@@ -145,11 +137,12 @@ class Game {
   cleanUp () {
     this.generation = 0;
     this.line = 0;
+    this.currentText = [];
+    this.insertionPoints = [];
     this.actualState.reset(); 
     this.zoom.current = 'xl';
-    this.init()
-    this.clearWorld();
-    this.redrawWorld();
+    this._resetCellMetrics ();
+    this.prepare();
   }
 
  /** ****************************************************************************************************************************
@@ -189,6 +182,14 @@ class Game {
   initCanvas () {
     this.canvas = document.getElementById('canvas');
     this.context = this.canvas.getContext('2d');
+
+    let offset = document.getElementById('controls').getBoundingClientRect();
+
+    this.rows = Math.round(window.innerHeight / (this.cellSize + this.cellSpace));
+
+    this.columns = Math.round((window.innerWidth*0.95) / (this.cellSize + this.cellSpace));
+
+    this.marginLeft = Math.round(this.columns/7);
   }
 
   prepare () {
@@ -197,11 +198,8 @@ class Game {
   }
 
   clearWorld () {
-    var i, j;
-
     this.insertionPoints = [this.marginLeft]
 
-    // Init ages (Canvas reference)
     this.actualState.clearAges();
   }
 
@@ -212,10 +210,10 @@ class Game {
 
   drawWorld () {
     // Dynamic canvas size
-    this.width = (this.cellSpace * this.columns) + (this.cellSize * this.columns);
+    this.width = this._units(this.columns);
     this.canvas.setAttribute('width', this.width);
 
-    this.height = (this.cellSpace * this.rows) + (this.cellSize * this.rows);
+    this.height = this._units(this.rows);
     this.canvas.setAttribute('height', this.height);
 
     // Fill background
@@ -241,7 +239,7 @@ class Game {
     }
   }
 
-  drawCell (i, j, alive) {   
+  drawCell (i, j, alive) {
     if (alive) {
       this.context.fillStyle = this.colors.alive[this.actualState.age[i][j] % this.colors.alive.length];
     } else if (this.trail && this.actualState.age[i][j] < 0) {
@@ -253,8 +251,8 @@ class Game {
     if (this.square) {
       this.context.fillRect(this._processXCoord(i), this._processYCoord(j), this.cellSize, this.cellSize);
     } else {
-      let iPos = this.cellSpace + (this.cellSpace * i) + (this.cellSize * i) + this.cellSize/2;
-      let jPos = this.cellSpace + (this.cellSpace * j) + (this.cellSize * j) + this.cellSize/2;
+      let iPos = this._processXCoord(i) + this.cellSize/2;
+      let jPos = this._processYCoord(j) + this.cellSize/2;
       this.context.beginPath();
       this.context.arc(iPos, jPos, this.cellSize/2, 0, 2 * Math.PI);
       this.context.fill();
@@ -262,14 +260,13 @@ class Game {
   }
 
   setNoGridOn () {
-    this.square = true;
-    this.cellSize = this.zoom[this.zoom.current]["cellSize"] + this.zoom[this.zoom.current]["cellSpace"];
     this.cellSpace = 0;
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"] + this.zoom[this.zoom.current]["cellSpace"];
   }
 
   setNoGridOff () {
-    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
     this.cellSpace = this.zoom[this.zoom.current]["cellSpace"];
+    this.cellSize = this.zoom[this.zoom.current]["cellSize"];
   }
 
   /** ****************************************************************************************************************************
@@ -289,18 +286,7 @@ class Game {
       try {
         if (this._willBumpToNewLine(ltr)) {
           if (this.zoom.current !== 'xs' && this._nextLineIsMoreThanHalf()) {
-            this._setSmallerSize();
-            this.init();
-
-            this.line = 0;
-
-            let temp = this.currentText.slice()
-
-            this.currentText = []
-
-            for (const l in temp) {
-              this.typeLetter(temp[l][0], temp[l][1]);
-            }
+            this._updateSize();
             
             this.redrawWorld();
           } else {
@@ -336,7 +322,7 @@ class Game {
         for (j = 0 ; j < code[i][k].length ; j++) {
           x = code[i][k][j] + this._getLastInsertionPoint();
 
-          y = parseInt(k, 10) + this.marginTop + this.line*this.lineHeight+(this.lineHeight-code.length);
+          y = parseInt(k, 10) + this.line*this.lineHeight + (this.capHeight-code.length);
 
           if (alignment === 't') {
             adjustment = this.lineHeight - code.length - this.leading
@@ -371,6 +357,12 @@ class Game {
       this.actualState.nextGeneration();
     }
 
+    if (this.zoom.current !== 'xs' && this._nextLineIsMoreThanHalf()) {
+      this._updateSize();
+      
+      this.redrawWorld();
+    }
+
     this.insertionPoints.push(this.marginLeft)
     this.line += 1;
     this.lastSpace = this.currentText.length;
@@ -394,7 +386,6 @@ class Game {
 
     for (let i = xymax[1]; i <= this.actualState.highestRow; i++) {
       for (let j = xymax[0]; j <= xymax[2]; j++) {
-        console.log(i, j)
         if (i in this.actualState.cells && this.actualState.cells[i].has(j)) {
           this.actualState.removeCell(i,j);
         }
@@ -461,23 +452,50 @@ class Game {
   }
 
   _getLastLine () {
-    return this.line*this.lineHeight+this.marginTop+this.leading;
+    return this.line*this.lineHeight;
   }
 
   _processXCoord (x) {
-    let coord = this.cellSpace + (this.cellSpace * x) + (this.cellSize * x);
-
-    console.log("x", coord)
+    let coord = this.cellSpace + this._units(x) - this.cellSpace / 2;
 
     return coord;
   }
 
   _processYCoord (y) {
-    let coord = this.cellSpace + (this.cellSpace * y) + (this.cellSize * y);
-
-    console.log("y", coord);
+    let coord = this.cellSpace + this._units(y) + this._units(this._getMidPoint() - (this.line+1)*this.capHeight / 2) - this.cellSpace / 2;
 
     return coord;
+  }
+
+  _units (val) {
+    return (this.cellSpace * val) + (this.cellSize * val) 
+  }
+
+  _getMidPoint () {
+    return Math.round(this.rows / 2);
+  }
+
+  _updateSize () {
+    this._setSmallerSize();
+    this.init();
+
+    this.line = 0;
+
+    let temp = this.currentText.slice()
+
+    this.currentText = []
+
+    for (const l in temp) {
+      this.typeLetter(temp[l][0], temp[l][1]);
+    }
+  }
+
+  _resetCellMetrics () {
+    if (this.grid) {
+      this.setNoGridOff();
+    } else {
+      this.setNoGridOn();
+    }
   }
 
   _setSmallerSize () {
@@ -495,6 +513,8 @@ class Game {
         this.zoom.current = 'xs'
         break;
     }
+
+    this._resetCellMetrics ();
   }
 
   _generateAnimationStatesAndAges () {
@@ -510,8 +530,6 @@ class Game {
 
     this.pastStates.push(JSON.stringify(tempCells))
     this.pastAges.push(JSON.stringify(tempAges))
-
-    console.log(this.generation)
 
     if (this.generation == 50) {
       console.log(window.URL.createObjectURL(new Blob(this.pastStates, {type: 'text/JSON'})));

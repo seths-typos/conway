@@ -1,4 +1,4 @@
-#CXRLE Pos=-10,-6
-x = 12, y = 16, rule = B0123478/S01234678
-obo$b2o$3o$2o$b2o$2o$3o$b2o$bo$2o$2o$b2o$b2o$2o2b2ob2ob2o$11o$2obobob
-2ob2o!
+#CXRLE Pos=-10,-8
+x = 12, y = 18, rule = B0123478/S01234678
+obo$b2o$3o$2o$b2o$2o$2o$b2o$b2o$2o$2o$b2o$b2o$2o$b2o$2o2b2obob3o$11o$o
+2bob3obobo!

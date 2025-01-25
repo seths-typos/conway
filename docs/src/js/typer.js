@@ -1,5 +1,5 @@
 function typeString (str) {
-  GAME.reset()
+  GAME.cleanUp()
   for (const LTR in str) {
     let char = str[LTR];
 
